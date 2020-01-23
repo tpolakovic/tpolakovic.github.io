@@ -126,3 +126,4 @@ dmypy.json
 
 # Stupid Mac stuff
 .DS_Store
+publish.sh
