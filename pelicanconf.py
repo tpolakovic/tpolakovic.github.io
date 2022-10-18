@@ -36,7 +36,7 @@ DEFAULT_PAGINATION = 10
 
 MARKUP = ('md', 'ipynb')
 
-PLUGIN_PATHS = ['./plugins']
+PLUGIN_PATHS = ['./pelican-plugins']
 STATIC_PATHS = ['img']
 PLUGINS = ['ipynb.markup']
 IGNORE_FILES = [".ipynb_checkpoints"]
