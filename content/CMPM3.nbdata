@@ -1,0 +1,7 @@
+Title: Computational Physics for the Masses Part 3: Solid Stuff
+Slug: comp-phys-mass-3
+Date: 2022-10-18 6:00
+Category: Computational Physics
+Tags: Julia, Quantum Mechanics, Solid State
+Author: Tomas Polakovic
+Summary: First delve into solid state physics: Crystals, symmetries, electronic band. We explore basic computational methods, namelly the nearly free electron model and the tight binding method.
