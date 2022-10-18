@@ -34,7 +34,7 @@ SOCIAL = (
 
 DEFAULT_PAGINATION = 10
 
-MARKUP = ('md', 'ipynb')
+MARKUP = ('md', 'pelican-ipynb')
 
 PLUGIN_PATHS = ['./pelican-plugins']
 STATIC_PATHS = ['img']
