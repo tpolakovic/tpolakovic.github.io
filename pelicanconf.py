@@ -1,6 +1,7 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*- #
 from __future__ import unicode_literals
+#from pelican_jupyter import liquid as nb_liquid # import pelican-jupyter
 
 AUTHOR = 'Tomas Polakovic'
 SITENAME = 'A Bit Correlated'
@@ -38,7 +39,7 @@ MARKUP = ('md', 'pelican-ipynb')
 
 PLUGIN_PATHS = ['./pelican-plugins']
 STATIC_PATHS = ['img']
-PLUGINS = ['ipynb.markup']
+PLUGINS = ['pelican-ipynb.markup']
 IGNORE_FILES = [".ipynb_checkpoints"]
 
 THEME = './themes/Flex'
