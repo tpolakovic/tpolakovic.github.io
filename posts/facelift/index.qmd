@@ -1,0 +1,18 @@
+---
+title: "Facelift"
+description: "Or: Why does the website look different?"
+author: "Tomas Polakovic"
+date: "01/19/2023"
+---
+
+New year, new ~~me~~ website look!
+
+Since its inception, this blog has been made using [Pelican](https://getpelican.com) as the static site generator of choice. It
+became my go-to because it had the wonderful option to render Jupyter notebooks without me having to use any external tools,
+which saved me a lot of headaches. Unfortunately, the plugin that enabled this feature got abandoned and my personal computer
+got upgraded to one with Apple's ARM processor, so I couldn't revert to older Python versions where things worked smoothly. I
+somehow made it work for my [most recent](/posts/cmpm3/) post, but it took a lot of finagling and I realized that this is not
+sustainable. Since then, I discovered [Quarto](https://quarto.org), a technical publishing system that has the option to generate
+static websites as well. It works seamlessly with Jupyter notebooks, has a more streamlined workflow and I can see myself using
+it for other things, work-related or not, so I made the switch. I think all my older posts render correctly, so there's no need
+to worry if you're new or a returning reader.
