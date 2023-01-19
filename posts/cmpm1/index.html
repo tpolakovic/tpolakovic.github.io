@@ -129,6 +129,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <link rel="stylesheet" href="../../styles.css">
+<meta property="og:title" content="A Bit Correlated - Computational Physics for the Masses Part 1: Spinning and Sloshing in Atoms">
+<meta property="og:description" content="Our first jump into quantum mechanics.">
+<meta property="og:image" content="https://tpolakovic.github.io/posts/cmpm1/thumbnail1.png">
+<meta property="og:site-name" content="A Bit Correlated">
+<meta property="og:image:height" content="698">
+<meta property="og:image:width" content="1020">
 </head>
 
 <body class="nav-fixed fullcontent">
@@ -216,7 +222,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<p>In the <a href="comp-phys-mass-0.html">zeroth part</a>, I mentioned that we will do some almost professional science stuff. But to <a href="http://i.imgur.com/rCr9A.png">draw an owl</a>, you need to start with circles, which is something we’ll do today. I’ll show you what does it actually mean to solve a quantum-mechanical problem and what are the most basic mathematical tools to do it.</p>
+<p>In the <a href="../../posts/cmpm0/">zeroth part</a>, I mentioned that we will do some almost professional science stuff. But to <a href="http://i.imgur.com/rCr9A.png">draw an owl</a>, you need to start with circles, which is something we’ll do today. I’ll show you what does it actually mean to solve a quantum-mechanical problem and what are the most basic mathematical tools to do it.</p>
 <p>To demonstrate the use of these tools, I need some physical example. There are a few choices, the most common one being the particle in square potential well. A system like that is nice because people are intuitively more familiar with problems in real space, but there are some nuances that get swept under the rug in introductory materials and don’t become really obvious in a calculus-based approach. However, computers are generally bad at calculus and <em>really</em> good at algebra, so we’ll rely more on the <a href="https://en.wikipedia.org/wiki/Matrix_mechanics">matrix formulation of quantum mechanics</a>, where the finer details of real-space representation and consequences of having a finite amount of memory would force me to feed you too much information in one sitting. Fortunately, there are other simple examples that work without silent assumptions and demonstrate the basics just as well - systems with finite, small amount of possible states like particle spin and angular momentum.</p>
 <hr>
 <section id="touching-bases-with-angular-momentum-and-spin" class="level3">
