@@ -6,6 +6,7 @@ website:
   site-url: https://tpolakovic.github.io
   description: "Physics and stuff..."
   favicon: favicon.ico
+  open-graph: true
   navbar:
     right:
       - about.qmd
@@ -13,6 +14,7 @@ website:
         href: index.xml
       - icon: github
         href: https://github.com/tpolakovic/tpolakovic.github.io
+
 format:
   html:
     theme: united

@@ -91,5 +91,4 @@ It's fascinating how dynamics of systems that might be [fundamentally disconnect
 
 ---
 
-That's it for the this part. If you feel let down by reading the name of this series and then just seeing a bunch of text and equations with no real computation don't worry. Other parts of the series won't be like this. The [next part](comp-phys-mass-1.html) is already out, as I wrote both of them back-to-back, but I would recommend to take a break. Stare at the last three equations. There is an important message being conveyed in the last couple of paragraphs and it would be a shame if it got lost before moving on to the number crunching.
-
+That's it for the this part. If you feel let down by reading the name of this series and then just seeing a bunch of text and equations with no real computation don't worry. Other parts of the series won't be like this. The [next part](/posts/cmpm1/) is already out, as I wrote both of them back-to-back, but I would recommend to take a break. Stare at the last three equations. There is an important message being conveyed in the last couple of paragraphs and it would be a shame if it got lost before moving on to the number crunching.
