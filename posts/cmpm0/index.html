@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.313">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Tomas Polakovic">
+<meta name="dcterms.date" content="2019-10-03">
+<meta name="description" content="Introduction into the series.">
+
+<title>A Bit Correlated - Computational Physics for the Masses Part 0: Hello, World!</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">A Bit Correlated</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml"><i class="bi bi-rss" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/tpolakovic/tpolakovic.github.io"><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Computational Physics for the Masses Part 0: Hello, World!</h1>
+                  <div>
+        <div class="description">
+          Introduction into the series.
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">Quantum mechanics</div>
+                <div class="quarto-category">Basics</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Tomas Polakovic </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">October 3, 2019</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<p>This first (well, zeroth) entry will be with no code, simply because it’s the first one and deserves some introduction. The <em>real</em> first post is up along with this one, so if you don’t feel like reading my rambling about how the establishment is doing it all wrong, jump to the second section. If you don’t want to read about profound philosophy of representation of function spaces in computers either (really?), then just skip this part all-together and go straight to next part.</p>
+<hr>
+<section id="whats-all-this-about" class="level2">
+<h2 class="anchored" data-anchor-id="whats-all-this-about">What’s all this about?</h2>
+<p>The inspiration to this series comes from a course on <a href="https://topocondmat.org">topology in condensed matter</a>, which I really like because it does not only talk about the physics, but actually <em>does</em> it and shows the results. It doesn’t just throw formulas at you, but uses them to show how the physical systems behave, at least on the theoretical level. But it’s not perfect. It focuses on, unsurprisingly, topology in condensed matter physics, which might not be something that interests everyone. And even if it is something that some of you would be interested in, the required amount of previous knowledge in condensed matter or quantum mechanics might be too high of a potential barrier to overcome. The second issue is that it obfuscates a large part of the computational algorithms and you have to do a lot of digging into the source code to find out how it works under the hood.</p>
+<p>You could argue that there is a lot blogs, code repos and books out there to solve the inadequacies of an online topology course, and you would probably be right. If you know what you’re doing and know where to look or have the correct people around you to ask, you can build yourself from scratch to the point where you can comfortably do computational physics at or higher than the level of the course. But most people don’t fall into this category. The people who don’t know where and what to look for or who to ask (i.e.&nbsp;not higher undergrad or grad students working on computational topics) will go on the Internet and get flooded by hundreds of “I programmed a double-pendulum in Python” types of resources or resources that are too advanced for someone who doesn’t (plan to) do this for a living. It’s unfortunate that there’s this huge empty chasm between the absolute basics and science-grade code, <a href="http://i.imgur.com/rCr9A.png">which makes it hard to do anything cool</a>.</p>
+<p>This resource gap is where I want to find a niche and do something fun for me and useful for others. In this series, I want to show how to do computational physics that’s more than just drawing the trajectory of Earth around the Sun and slowly build up to some real, modern physics with no shortcuts.</p>
+<p>So, what will you find in this series?</p>
+<ul>
+<li>Me bumbling around. I’m an experimental condensed matter physicist by trade but, back in college and early grad school, I was also working in the computational side of things. So you should expect things to mostly work, but they will not always be as efficient and the code might sometimes look ugly.</li>
+<li>A lot of computational quantum mechanics and statistical physics and maybe a tiny bit of particle physics. Things like simple astronomy and mechanics are covered by many other resources out there and I simply don’t know enough physics related to the more advanced stuff from these fields. Sorry, no computational general relativity or fluid dynamics (probably).</li>
+<li>Code that just works. Every single line of code will be shown and every function will be discussed. I don’t like hiding the computation in computational physics and I want you to see the process of going from textbook physics to a finished <a href="https://en.wikipedia.org/wiki/Density_functional_theory#/media/File:C60_isosurface.png">fancy figure</a> that you could see in a published paper. Being able to see a worked example is a good way to overcome the learning curve and going from reading about exciting physics to doing it.</li>
+</ul>
+<p>And what will you <em>not</em> find in my posts?</p>
+<ul>
+<li>A textbook on basic physics. I know I said that I don’t want this to become a collection of advanced physics topics, but there’s a limit to how much I can fit into this format. Through the text, I will do my best to reference freely available resources wherever possible, but don’t expect to understand everything I do here without knowledge of the basics. That doesn’t mean you won’t get anything out of this if you’re not a physics student or a full-grown physicist. You can always reach out to <a href="https://physics.stackexchange.com">Physics Stack Exchange</a> or <a href="https://www.reddit.com/r/AskPhysics/">Reddit AskPhysics</a> where me and many others will help you if you have questions or just read the material that I link and you should be able to follow what’s going on.</li>
+<li>The same boring code and programming paradigms as everywhere else. If you were like me, your computational physics and numerics classes were taught in C, C++, Java or Python. Or Matlab (my condolences). We all had it hammered into our heads that object oriented programming is the One True Way and when you become a big boy scientist, C++ and Fortran will be the only acceptable languages. You will see that that’s not necessarily true anymore and I have to be the change I want to see in the world of scientific computing. If you still want to do this the conservative way, you easily can, because I will show <em>all</em> of the code and you will always have something to base your programs on.</li>
+</ul>
+<p>So, who is this series for? Well, firstly me, I guess. I do this in my off time as a hobby. But if it were just that, I could just as easily keep all the code in private repo and not bother with all the text and derivations. It’s also for other people to read and learn. If you’re a physics student that wants to learn how to do computational physics, then you’re the target audience of this series. Similarly, if you’re a grown up physicist or material scientist that wants to see how the sausage is made, you should find this interesting. If you come from outside of physics and want to see and learn cool things, you absolutely can. Do expect, however, that some parts of my explanations might not be enough for you. Or, even worse, they might feel like they make sense to you but they actually don’t. Go to the sites I linked and ask if you don’t understand something. I’m not going to pretend that there are no stupid questions, but it’s always preferable to ask them rather just keeping a stupid question to yourself and not having an answer. We all were new to this at a certain point and no scientist will ever get mad at you or make fun of you not knowing something if you show genuine interest in a topic.</p>
+<section id="no-snakes-in-this-codebase" class="level3">
+<h3 class="anchored" data-anchor-id="no-snakes-in-this-codebase">No snakes in this codebase</h3>
+<p>It shouldn’t surprise anyone that there will be a lot of code in a computational physics blog. And because there’s a lot of it, it’s worth discussing, at least for a little bit, what programming language I’ll be using and what are my preferred alternatives (and why Python isn’t any of them).</p>
+<p>As I already mentioned, you will not find any of the workhorse languages like C++ or Fortran here. I sometimes have a weak moment and do small programs in Fortran but I find programming in C or C++ thoroughly unenjoyable and avoid it. At first, I was considering doing this series using <a href="https://ocaml.org">OCaml</a> because the balance of functional and imperative features is very pleasing and it has a NumPy/SciPy-like library specifically for scientific computing - the wonderful <a href="https://ocaml.xyz">Owl</a> library. I decided against following this route because the language has some rough edges and alien syntax that would distract from the main point. Although, I might do a bit here and there, where I’ll be showing how to do parallel algorithms on a GPU and that will be most definitely with <a href="https://futhark-lang.org">Futhark</a>, which is a ML-style language, just like OCaml. Another option I considered was the <a href="https://www.rust-lang.org">Rust</a> programming language. It’s fast, has <a href="https://github.com/rust-ndarray/ndarray">good multidimensional array library</a> with associated <a href="https://github.com/rust-ndarray/ndarray-linalg">linear algebra</a> and the built-in <a href="https://github.com/rust-lang/cargo/">tooling</a> is infinitely better than C++. But it’s a compiled, strict and static language which makes the development of programs slow and the code <em>way</em> too verbose.</p>
+<p>In the end, I settled for the <a href="https://julialang.org">Julia</a> language. It’s a general purpose language with strong focus on scientific computing and numerics that’s trying to, at least seemingly, replace languages like R, Matlab and (heavily library-dependent) Python. And it’s being rather good at it: it’s very approachable, fast (with a few <a href="http://www.stochasticlifestyle.com/7-julia-gotchas-handle/">caveats</a>) and getting it running is as easy as <a href="https://juliacomputing.com/products/juliapro.html">downloading</a> a single app or setting up a <a href="https://www.juliabox.com">free account</a> on a Jupyter notebook server. It’s by no means as fun as coding in <a href="https://en.wikipedia.org/wiki/Scheme_%28programming_language%29">Scheme</a> or <a href="https://common-lisp.net">Common Lisp</a>, but it gets the job done. Be warned, though, that it’s not all happy-fun-times. Julia was really hyped a couple of years ago, early in it’s life cycle before the 1.0 release, which lead to a surprising explosion of libraries and community support. The dust has settled and the language has eventually matured and stabilized but at the expense of a bunch of breaking changes. Because of this, many of the resources you find on the web will just not work (at least 2/3 of the linear algebra tutorials and cookbooks tell you to use functions like <code>eigs</code> which no longer exist in the main linear algebra library) and some of the really interesting libraries just died before they could have been useful (e.g.&nbsp;seamless GPU support for arrays <a href="https://github.com/JuliaGPU/CLArrays.jl/issues/41">doesn’t work</a> if you’re using OpenCL like me). <em>C’est la vie</em>.</p>
+<p>After all this, we can finally get to the real stuff…</p>
+</section>
+<section id="computers-and-vector-spaces-or-how-many-bits-does-it-take-to-store-the-concept-of-a-sine-function" class="level3">
+<h3 class="anchored" data-anchor-id="computers-and-vector-spaces-or-how-many-bits-does-it-take-to-store-the-concept-of-a-sine-function">Computers and vector spaces or: How many bits does it take to store the concept of a sine function?</h3>
+<p><em>In an ideal world, this is where I would write a small book worth of concepts and derivations relevant to <a href="https://en.wikipedia.org/wiki/Hamiltonian_mechanics">Hamiltonian mechanics</a> and quantum mechanics. I will not do that. Not because I want to keep it secret from you but because it would be just too much to write (<a href="https://www.amazon.com/Introduction-Quantum-Mechanics-David-Griffiths/dp/0131118927">Griffiths</a> has almost 470 pages just for introduction to quantum mechanics). Those of you who will read the following few paragraphs and feel completely lost, will have to either ask me or the Internet, or search for a book or pdf. There’s plenty of resources. And don’t lose hope, things will get a bit more down-to-earth once the programming part begins.</em></p>
+<p>Before we get to the nitty-gritty of quantum mechanics, let’s have a bit of an informal discussion in context of classical mechanics. Let’s start with the concept of a state. A state is (as described by Wikipedia) a complete description of a system. It’s a roster of all the relevant quantities that describe an object. For example in orbital dynamics a state of a planet would be determined by giving the planet’s position and momentum. You can also have systems that have more than just one planet, in which case, the state is determined by enumerating all of the individual planet’s positions and momenta. In classical mechanics, all these properties are just well defined numbers.</p>
+<p>The second pair of concepts is the phase space and the equations of motion. The phase space is a <a href="https://en.wikipedia.org/wiki/Space_%28mathematics%29">space</a> of all the possible states of a system. If we take the example of a point mass in 1D (or a marble on a string, if you want), it’s phase space will be represented by a 2D plane with momentum as one coordinate and position as another. Equations of motion are equations that describe the time evolution of a system - given an initial state, they will tell you in what state the system will be in the future (physics is really just a posh form of clairvoyance). As the system evolves, it will draw out a trajectory in the phase space which, in case of a time-invariant system, will be contour of constant energy. These trajectories are solutions to the Hamilton’s equations:</p>
+<p><span class="math display">\[ \frac{d\mathbf{p}}{dt} = -\frac{\partial\mathcal{H}}{\partial\mathbf{q}} \quad , \quad \frac{d\mathbf{q}}{dt} = \frac{\partial\mathcal{H}}{\partial\mathbf{p}}.\]</span></p>
+<p><span class="math inline">\(\mathcal{H}\)</span> is the famous classical Hamiltonian and <span class="math inline">\(\mathbf{q}\)</span>s and <span class="math inline">\(\mathbf{p}\)</span>s are generalized coordinates and corresponding momenta. Generalized, because the coordinates need not be just Cartesian coordinates - they can be the angles of a pendulum, displacements in a vibrating sheet or many other things.</p>
+<p>Now that we have all that, let’s ruin it by introducing quantum mechanics.</p>
+<p>The concept of state still exists, <a href="https://en.wikipedia.org/wiki/Quantum_state">somewhat</a>. The state is now represented by a vector in vector space called a <a href="https://en.wikipedia.org/wiki/Hilbert_space">Hilbert space</a> and this change has some interesting consequences. The relationship between a state and observables got subverted, where the state can <a href="https://en.wikipedia.org/wiki/Uncertainty_principle">no longer be defined</a> by an enumeration of numbers corresponding to its canonical positions and momenta as in classical physics. Conceptually, momentum or position (or any other measurable quantity) are not just numbers anymore, but <a href="https://en.wikipedia.org/wiki/Operator_(physics)">operators</a> and the possible values of measurable quantities are the eigenvalues of these operators, i.e.&nbsp;the possible values <span class="math inline">\(a\)</span> (numbers) of any physical quantity <span class="math inline">\(A\)</span> of a system in state <span class="math inline">\(\psi\)</span> are <span class="math inline">\(\hat{A} \psi = a\psi\)</span>.</p>
+<p>Lastly, Newton’s equations of motion are not a thing anymore and the evolution of a system is governed by the Schrödinger equation:</p>
+<p><span class="math display">\[i\hbar \frac{d}{dt} \left| \Psi(t) \right&gt; = \hat{H} \left| \Psi(t)\right&gt;\]</span></p>
+<p>or the time-independent form:</p>
+<p><span class="math display">\[ \hat{H} \left| \Psi \right&gt; = E \left| \Psi \right&gt;,\]</span></p>
+<p>With <span class="math inline">\(\hat{H}\)</span> the Hamiltonian operator and <span class="math inline">\(E\)</span> it’s eigenvalues - the possible energies of the system.</p>
+<p>Here we introduced the <a href="https://en.wikipedia.org/wiki/Bra–ket_notation">bra-ket</a> notation commonly seen in physics. As I mentioned before, the state <span class="math inline">\(\Psi\)</span> lives in a Hilbert space of wave functions and the angled braces notation is used for vectors in this space. Usually, a state <span class="math inline">\(\left| ... \right&gt;\)</span> (ket) is represented as a column vector and <span class="math inline">\(\left&lt; ... \right|\)</span> (bra) is it’s hermitian conjugate. An inner product of two vectors in this notations is written as <span class="math inline">\(\left&lt; ... | ... \right&gt;\)</span> and the outer product as <span class="math inline">\(\left| ... \right&gt; \left&lt; ... \right|\)</span>.</p>
+<p>The only problem is that Hilbert spaces and their vectors and operators are not something you can store in computer memory - it’s a fully abstract concept and my CPU doesn’t have registers for spherical harmonics or any other functions. How can we do simulations of such systems?</p>
+<p>It’s easy, actually. When I tell you to make a program that calculates a position in real space, what will you do? It’s not like a CPU has registers for meters either (I’m betting that the CPU manufacturers are getting hard from the idea of region-locked hardware based on local preferred unit system). You’ll chose a basis which defines a good coordinate system and give me the position as a linear combination of the basis vectors - just numbers of how many of each there are between me and the position. What about operators? Well, consider what operators do: They transform vectors in the Hilbert space. Sounds suspiciously similar to <a href="https://en.wikipedia.org/wiki/Transformation_matrix">something</a> doesn’t it?</p>
+<p>More formally, if we have some <a href="https://en.wikipedia.org/wiki/Orthonormal_basis">complete orthonormal</a> basis <span class="math inline">\(\{\phi _i \}_i\)</span>, with <span class="math inline">\(\left&lt; \phi _i | \phi _j \right&gt; = \delta _{ij}\)</span>, an operator <span class="math inline">\(\hat{A}\)</span> can be represented as:</p>
+<p><span class="math display">\[ \hat{A} = \mathbf{1} \cdot \hat{A} \cdot \mathbf{1} = \left[ \sum_i \left| \phi_i \right&gt; \left&lt; \phi_i \right| \right] \cdot \hat{A} \cdot \left[ \sum_j \left| \phi_j \right&gt; \left&lt; \phi_j \right| \right] = \sum_{ij} \left&lt;\phi_i\right| \hat{A} \left|\phi_j\right&gt; \left| \phi_i \right&gt; \left&lt; \phi_j \right| = \sum_{ij} A_{ij} \left| \phi_i \right&gt; \left&lt; \phi_j \right|,\]</span></p>
+<p>Where <span class="math inline">\(A_{ij}\)</span> are elements of a complex matrix <span class="math inline">\(\mathbf{A}\)</span>, i.e.&nbsp;something that we can store in a computer memory and have the CPU do calculations with. You can do the same thing with a vector in the Hilbert space:</p>
+<p><span class="math display">\[ \left| \psi \right&gt; = \mathbf{1} \cdot \left| \psi \right&gt; = \left[ \sum_i \left| \phi_i \right&gt; \left&lt; \phi_i \right| \right] \cdot \left| \psi \right&gt; = \sum_i \left&lt;\phi_i | \psi \right&gt; \left| \phi_i \right&gt; = \sum_i \psi_i \left|\phi_i\right&gt;,\]</span></p>
+<p>where <span class="math inline">\(\psi_i\)</span> are components of a complex vector <span class="math inline">\(\mathbf{\psi}\)</span>. Just an array of complex numbers. Armed with this representation, we can finally write down computer-solvable problems, for example the time-independent Schrödinger equation:</p>
+<p><span class="math display">\[ \sum_j H_{ij} \psi_j = E\psi_i . \]</span></p>
+<p>It’s fascinating how dynamics of systems that might be <a href="https://en.wikipedia.org/wiki/Heisenberg_cut">fundamentally disconnected</a> from the reality of our daily lives, described by mathematical objects which simply don’t exist in physical world can still be reduced to a simple algebraic problem solvable on a computer sitting on the desk in front of you. <a href="https://en.wikipedia.org/wiki/The_Unreasonable_Effectiveness_of_Mathematics_in_the_Natural_Sciences" title="Some quality name-dropping being done here">Unreasonable effectiveness of math</a> indeed, Mr.&nbsp;Wigner.</p>
+<hr>
+<p>That’s it for the this part. If you feel let down by reading the name of this series and then just seeing a bunch of text and equations with no real computation don’t worry. Other parts of the series won’t be like this. The <a href="comp-phys-mass-1.html">next part</a> is already out, as I wrote both of them back-to-back, but I would recommend to take a break. Stare at the last three equations. There is an important message being conveyed in the last couple of paragraphs and it would be a shame if it got lost before moving on to the number crunching.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
