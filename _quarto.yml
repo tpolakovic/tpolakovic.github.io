@@ -5,6 +5,7 @@ website:
   title: "A Bit Correlated"
   site-url: https://tpolakovic.github.io
   description: "Physics and stuff..."
+  favicon: favicon.ico
   navbar:
     right:
       - about.qmd
