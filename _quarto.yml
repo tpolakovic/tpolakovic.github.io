@@ -7,6 +7,8 @@ website:
   description: "Physics and stuff..."
   favicon: favicon.ico
   open-graph: true
+  page-footer: "© Copyright 2022, Tomas Polakovic. Except where otherwise noted, all text and images
+  licensed CC-BY-NC 4.0."
   navbar:
     right:
       - about.qmd

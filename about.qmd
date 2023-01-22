@@ -1,7 +1,8 @@
 ---
 title: "About"
 about:
-  template: jolla
+  template: trestles
+  image: profile.JPG
   links:
     - icon: linkedin
       text: LinkedIn
@@ -9,15 +10,24 @@ about:
     - icon: github
       text: Github
       href: https://github.com/tpolakovic
-    - icon: reddit
-      text: Reddit
-      href: https://www.reddit.com/user/tpolakov1/
     - icon: google
       text: Google Scholar
       href: https://scholar.google.com/citations?user=ElHnfB8AAAAJ
+    - text: ORCID
+      href: https://orcid.org/0000-0002-0191-1514
+
+    - icon: reddit
+      text: Reddit
+      href: https://www.reddit.com/user/tpolakov1/
     - text: Art Portfolio
       href: https://tompolakovic.crevado.com
 
 ---
 
-I'm Tom. I'm a wannabe physicist and amateur digital artist. Around here, you'll be able to find stuff related to my work, hobbies and combinations of thereof.
+::: {.column-page}
+
+I'm Tom. I'm a not so wannabe physicist and amateur digital artist.
+
+Around here, you'll be able to find stuff related to my work, hobbies and combinations of thereof.
+
+:::

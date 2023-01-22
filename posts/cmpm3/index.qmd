@@ -9,8 +9,7 @@ categories:
   - Quantum mechanics
   - Solid state physics
 jupyter: julia4t-1.8
-execute:
-  cache: true
+freeze: true
 ---
 Guess who's back? Yeah, it's been a while, but I've been quite busy with...well, *things*. No matter; the show is going on and today we finally dive into "real" stuff in computational quantum mechanics, more specifically, solid state physics. This part will also be showing some more big-boy practices in programming, as today's code will serve as a base for future parts of this series. It might mean that some parts will look a bit too verbose and not flow as nicely with the prose. But trust me, it will pay back in the future, so just follow along, there's also numerical physics in this part. I promise.
 
@@ -350,7 +349,7 @@ $$
 \frac{1}{2}\nabla^2 \Psi(\vec{r}) + V(\vec{r}) \Psi(\vec{r}) = E \Psi(\vec{r}); \qquad V(\vec{r} + \vec{R}_n) = V(\vec{r}).
 $$
 
-Because an ideal crystal is infinitely periodic, doing calculations in a box like we did in the [previous part](comp-phys-mass-2.html) will not lead to a faithful representation of wavefunctions. A much better option is to represent states in their full wave-like glory.
+Because an ideal crystal is infinitely periodic, doing calculations in a box like we did in the [previous part](/posts/cmpm2/) will not lead to a faithful representation of wavefunctions. A much better option is to represent states in their full wave-like glory.
 
 For a moment, let's pretend that the lattice is empty, i.e. $V(\vec{r}) = 0$. In that case, we're just solving the Hamiltonian of a free electron, with wave functions being just plane waves:
 
