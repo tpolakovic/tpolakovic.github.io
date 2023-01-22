@@ -41,15 +41,30 @@
 <p>Guess who’s back? Yeah, it’s been a while, but I’ve been quite busy with…well, <em>things</em>. No matter; the show is going on and today we finally dive into “real” stuff in computational quantum mechanics, more specifically, solid state physics. This part will also be showing some more big-boy practices in programming, as today’s code will serve as a base for future parts of this series. It might mean that some parts will look a bit too verbose and not flow as nicely with the prose. But trust me, it will pay back in the future, so just follow along, there’s also numerical physics in this part. I promise.</p>
 <hr>
 <p>Real quick, let’s get the needed packages out of the way:</p>
-<div class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><span class="im" style="color: #00769E;">using</span> <span class="bu" style="color: null;">Pkg</span></span>
-<span id="cb1-2"><span class="bu" style="color: null;">Pkg</span>.<span class="fu" style="color: #4758AB;">activate</span>(<span class="st" style="color: #20794D;">"./envs/cmpm3"</span>)</span></code></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>  Activating project at `~/projects/comp-phys/content/envs/cmpm3`</code></pre>
-</div>
-</div>
-<p><em>I start using package environments for individual parts of the series so that I don’t pollute my global package list with cruft that I don’t need outside of this blog. This is so that package versions can be resolved with minimal conflict and I avoid <a href="https://en.wikipedia.org/wiki/Dependency_hell">dependency hell</a> within my work.</em></p>
 <div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><span class="im" style="color: #00769E;">using</span> <span class="bu" style="color: null;">Pkg</span></span>
+<span id="cb1-2"><span class="bu" style="color: null;">Pkg</span>.<span class="fu" style="color: #4758AB;">activate</span>(<span class="st" style="color: #20794D;">"./env"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>  Activating project at `~/projects/comp-phys/posts/cmpm3/env`</code></pre>
+</div>
+</div>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Julia package environments
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>I start using package environments for individual parts of the series so that I don’t pollute my global package list with cruft that I don’t need outside of this blog. This is so that package versions can be resolved with minimal conflict and I avoid <a href="https://en.wikipedia.org/wiki/Dependency_hell">dependency hell</a> within my work.</p>
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><span class="im" style="color: #00769E;">using</span> <span class="bu" style="color: null;">LinearAlgebra</span></span>
 <span id="cb3-2"></span>
 <span id="cb3-3"><span class="im" style="color: #00769E;">using</span> <span class="bu" style="color: null;">Unitful</span></span>
@@ -66,8 +81,8 @@
 <span id="cb3-14"><span class="fu" style="color: #4758AB;">set_theme!</span>(theme)</span></code></pre></div>
 </div>
 <p>Just dense linear algebra will carry us almost all the way today, so there’s not much in here. <code>Colors</code> contains some types and definitions for <code>GLMakie</code>, which is a backend for the <a href="http://makie.juliaplots.org/stable/">Makie</a> plotting package that I got to like more than <code>Plots.jl</code> (there are a few lines at the bottom so that the default colors fit the theme of the blog, you can safely skip those). <code>Unitful</code> is a package to use and transform physical units and <code>RangeHelpers</code> gives a few quality-of-life improvements to linear <code>range</code>s found in the standard library.</p>
-<section id="on-life-groups-and-crystals" class="level3">
-<h3 class="anchored" data-anchor-id="on-life-groups-and-crystals">On <del>life</del>, groups and crystals</h3>
+<section id="sec-cmpm3-groups" class="level3">
+<h3 class="anchored" data-anchor-id="sec-cmpm3-groups">On <del>life</del>, groups and crystals</h3>
 <p>Before I go to the nitty-gritty of solids, I’ll make a short mathematical digression on group theory (something that’s very useful in physics and chemistry, so it’s worth talking about whenever possible).</p>
 <p>The definition of a group is, as with many fundamental things in mathematics, a bit hazy to a layperson: A group is a set of…<em>some things</em> and operations on these things that transform the things from the group into other things of the same group. The operations should be <a href="https://en.wikipedia.org/wiki/Associative_property">associative</a> and for a bunch of things to be considered a group, they need to include a <a href="https://en.wikipedia.org/wiki/Identity_element">neutral thing</a> and all somethings need to have their corresponding <a href="https://en.wikipedia.org/wiki/Inverse_element">inverse things</a> in the group, too. Confusing? Good, that’s how you know it’s important.</p>
 <p>And why is it important to us? Well, turns out that most solids are (at least in the ideal case) crystals, and most crystals form something called point symmetry groups. A point symmetry group is a collection of points in some kind of decently well-behaved space and some symmetry operations that “move” the points from their original positions into positions of other points without changing the overall structure.</p>
@@ -76,15 +91,30 @@
 </p>
 <p>Take, for example, a crystal that sits on a square lattice, like the two in the above picture. Pick a vector between two arbitrary points on the lattice (orange arrows), grab every single thing sitting on the lattice point (black dots), and move it by the same vector (black arrows). You see that if you do it to every thing on the (infinitely large) lattice, they will end up still sitting on the same lattice. This is known as (discrete) translational symmetry and the displacement vectors that preserve the shape of the crystal are known as lattice translation vectors. You can similarly rotate the whole crystal around any of the lattice points by, e.g., 90º and end up with the same thing (n-fold rotational symmetry, where n is the number of rotations you can do before you go full circle) or you can reflect across a line connecting any of the nearest neighbors (reflection symmetry). You can stack these operations in any way you want, and the resulting crystal will still look the same.</p>
 <p>From this, the old-timey definition of a crystal was that it is a periodic structure, i.e.&nbsp;a collection of atoms whose positions could transform into each other by translating along a lattice vector, like the orange one above. The definition had to change a couple of decades ago with Shechtman’s (in)famous discovery of naturally occurring stable <a href="https://en.wikipedia.org/wiki/Quasicrystal">quasicrystals</a>, where now a crystal is any structure with a discrete Fourier transform (reason for that will become obvious as we delve deeper into solid state and condensed matter physics).</p>
-<p>If we stick to just periodic structures, it turns out that there is only a finite amount of groups that work with this definition. To be more exact, there are only 5 of them in 2D and 14 in 3D space, and we call them <a href="https://en.wikipedia.org/wiki/Bravais_lattice">Bravais lattices</a>. The more perceptive of you should notice that such a small number of space groups cannot account for the whole zoo of crystal structures found in nature. That is because the thing that’s periodic with the lattice does not need to be just a single atom. In most crystals, you actually have clumps of atoms and these clumps repeat periodically. The volume that contains this repeating pattern or clump is called the unit cell. By demanding that these unit cells need always fill the space without any gap, you end up with 7 <a href="https://en.wikipedia.org/wiki/Crystal_system">crystal systems</a> and the whole shebang leads to a grand total of 230 possible crystal symmetries, which form the <a href="https://en.wikipedia.org/wiki/Space_group">crystallographic space groups</a> (technically, there’s only 219 affine space groups and 230 crystallographic space groups, but we’re getting too deep into this non-sense).</p>
+<p>If we stick to just periodic structures, it turns out that there is only a finite amount of groups that work with this definition. To be more exact, there are only 5 of them in 2D and 14 in 3D space, and we call them <a href="https://en.wikipedia.org/wiki/Bravais_lattice">Bravais lattices</a>. The more perceptive of you should notice that such a small number of space groups cannot account for the whole zoo of crystal structures found in nature. That is because the thing that’s periodic with the lattice does not need to be just a single atom. In most crystals, you actually have clumps of atoms and these clumps repeat periodically. The volume that contains this repeating pattern or clump is called the unit cell. By demanding that these unit cells need always fill the space without any gap, you end up with 7 <a href="https://en.wikipedia.org/wiki/Crystal_system">crystal systems</a> and the whole shebang leads to a grand total of 230 possible crystal symmetries, which form the <a href="https://en.wikipedia.org/wiki/Space_group">crystallographic space groups</a>.<sup>1</sup></p>
 <p>There is quite a bit more to be said about how symmetries dictate physics and how you can get a rather good qualitative understanding of a material and its chemistry just from the space symmetry of the lattice or molecule. As a matter of fact, there are <a href="https://link.springer.com/book/10.1007/978-3-642-97029-0">whole books</a> dedicated to this topic, which is why I won’t go that deep into it right now. It’s much better from the engagement standpoint to just sprinkle bits and pieces in as they become relevant.</p>
 <p>That, and the author of this blog is really bad at crystallography, so he needs to change the topic. Fast.</p>
-<p>So the first thing on our way toward calculations on crystals is implementing the lattice. But before that: units! We’ll use a form of atomic unit system called the <a href="https://en.wikipedia.org/wiki/Hartree_atomic_units">Hartree unit system</a>, which sets basically every unitful property of the hydrogen atom equal to 1: <img src="https://latex.codecogs.com/png.latex?m_e%20=%20e%20=%20%5Chbar%20=%20a_0%20=%201"> (<img src="https://latex.codecogs.com/png.latex?a_0"> is the Bohr radius). The characteristic scale of energy in this system is called Hartree (Ha) and corresponds to the total electrostatic energy of a Hydrogen atom which, by the virial theorem, is twice the ionization energy or ~27 eV. Bohr radii are not exactly convenient to work with in diffraction experiments and most people use nanometers or angstroms and electronvolts, so let’s handle that:</p>
-<div class="cell" data-execution_count="3">
+<p>So the first thing on our way toward calculations on crystals is implementing the lattice. But before that: units! We’ll use a form of atomic unit system called the <a href="https://en.wikipedia.org/wiki/Hartree_atomic_units">Hartree unit system</a>, which sets basically every unitful property of the hydrogen atom equal to one: <img src="https://latex.codecogs.com/png.latex?m_e%20=%20e%20=%20%5Chbar%20=%20a_0%20=%201"> (<img src="https://latex.codecogs.com/png.latex?a_0"> is the Bohr radius). The characteristic scale of energy in this system is called Hartree (Ha) and corresponds to the total electrostatic energy of a Hydrogen atom which, by the virial theorem, is twice the ionization energy or ~27 eV. Bohr radii are not exactly convenient to work with in diffraction experiments and most people use nanometers or angstroms and electronvolts, so let’s handle that:</p>
+<div class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1">a₀ <span class="op" style="color: #5E5E5E;">=</span> <span class="fl" style="color: #AD0000;">1.889726125</span>Å</span>
 <span id="cb4-2">Ha <span class="op" style="color: #5E5E5E;">=</span> <span class="fl" style="color: #AD0000;">27.2</span>eV;</span></code></pre></div>
 </div>
-<p><em><code>Unitful</code> already has angstroms and electronvolts defined, so there’s nothing more needed.</em></p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Note
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><code>Unitful</code> already has angstroms and electronvolts defined, so there’s nothing more needed.</p>
+</div>
+</div>
+</div>
 <p>Now we can define a Bravais lattice type, which is uniquely determined in <img src="https://latex.codecogs.com/png.latex?d">-dimensional space by a set of <img src="https://latex.codecogs.com/png.latex?d"> independent primitive lattice translation vectors <img src="https://latex.codecogs.com/png.latex?%5C%7B%20R_i%20%5C%7D_%7Bi%20=%201%7D%20%5Ed">. The whole lattice is a linear combination of those, i.e.&nbsp;<img src="https://latex.codecogs.com/png.latex?%5Cvec%7BR%7D_%7B%20n=%20%5C%7B%20n_i%20%5C%7D%7D%20=%20%5Csum_%7Bi=1%7D%5Ed%20n_i%20%5Cvec%7BR%7D_i"> (<img src="https://latex.codecogs.com/png.latex?n_i"> is the index of individual lattice sites).</p>
 <p>In anticipation of what’s to come, I’ll also package it with a corresponding <a href="https://en.wikipedia.org/wiki/Reciprocal_lattice">reciprocal lattice</a>, which is a dual lattice to the real-space lattice (think the correspondence of momentum space and real space). Many textbooks introduce this lattice in the context of diffraction experiments. There it turns out that X-rays or neutrons coherently scatter off the normal lattice only if their momentum/wave vector belongs to its reciprocal lattice, but I don’t like this approach. Because: a) it forces a full chapter of information on the realization of specific experimental techniques that has to be wedged into a much more physics-driven discussion, and b) because it’s first discussed in terms of experiments and little other context, it gives people the idea that the reciprocal lattice is a matter of experimental convenience, rather than a fundamental structure describing the physics.</p>
 <p>So rather than going the conventional pedagogical route, I’ll incept the importance of the reciprocal lattice with definition using just the translational invariance. The rest will naturally fall into place as the discussion goes on.</p>
@@ -93,7 +123,7 @@
 <p>This has to hold for arbitrary lattice vector <img src="https://latex.codecogs.com/png.latex?%5Cvec%7BR%7D_n">, so <img src="https://latex.codecogs.com/png.latex?e%5E%7Bi%20%5Cvec%7BG%7D_m%20%5Ccdot%20%5Cvec%7BR%7D_n%7D%20=%201">. From this, the set of vectors <img src="https://latex.codecogs.com/png.latex?%5C%7B%20%5Cvec%7BG%7D_m%20%5C%7D"> is fully determined as:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cvec%7BG%7D_m%20%5Ccdot%20%5Cvec%7BR%7D_n%20=%202%5Cpi%20N;%20%5C;%20N%20%5Cin%20%5Cmathbb%7BZ%7D.%0A"></p>
 <p>Because the positions <img src="https://latex.codecogs.com/png.latex?%5Cvec%7BR%7D_n"> form a lattice, the set of positions in momentum space <img src="https://latex.codecogs.com/png.latex?%5Cvec%7BG%7D_m"> also forms a periodic structure. It’s not the same lattice but certain properties, e.g.&nbsp;rotational symmetries, are shared. And, as with its real-space dual, this lattice can be again uniquely determined by the primitive reciprocal vectors <img src="https://latex.codecogs.com/png.latex?%5C%7B%20%5Cvec%7BG%7D_j%20%5C%7D_%7Bj%20=%201%7D%5Ed"> defined by the above equation with <img src="https://latex.codecogs.com/png.latex?%5Cvec%7BR%7D_n"> being the primitive lattice vectors and <img src="https://latex.codecogs.com/png.latex?N%20=%201">.</p>
-<div class="cell" data-execution_count="4">
+<div class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><span class="kw" style="color: #003B4F;">struct</span> Lattice{T<span class="op" style="color: #5E5E5E;">&lt;:</span><span class="dt" style="color: #AD0000;">Real</span>, N}</span>
 <span id="cb5-2">    R<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Union{T, Array{T}}</span></span>
 <span id="cb5-3">    G<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Union{T, Array{T}}</span></span>
@@ -108,7 +138,7 @@
 <span id="cb5-12">    <span class="kw" style="color: #003B4F;">end</span></span>
 <span id="cb5-13"><span class="kw" style="color: #003B4F;">end</span></span></code></pre></div>
 </div>
-<div class="cell" data-execution_count="5">
+<div class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">Lattice</span>(R<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Union{&lt;:Quantity, Matrix{&lt;:Quantity}}</span>)</span>
 <span id="cb6-2">    Unitful.<span class="fu" style="color: #4758AB;">NoUnits</span>.(R <span class="op" style="color: #5E5E5E;">./</span> a₀) <span class="op" style="color: #5E5E5E;">|&gt;</span> Lattice</span>
 <span id="cb6-3"><span class="kw" style="color: #003B4F;">end</span></span>
@@ -133,15 +163,30 @@
 <span id="cb6-22">    <span class="fu" style="color: #4758AB;">Lattice</span>(R)</span>
 <span id="cb6-23"><span class="kw" style="color: #003B4F;">end</span>;</span></code></pre></div>
 </div>
-<p><em>A lot going on here. Because the notion of the lattice will come up time and time again, I created a <a href="https://docs.julialang.org/en/v1/manual/types/#Composite-Types">composite type</a> <code>Lattice</code>, which is a structure that holds the fields <code>R</code>, <code>G</code> and <code>V</code>. I also made it parametric over a restricted set of types, where <code>R</code> and <code>G</code> can be either of type <code>T</code> or an array of <code>T</code>s (that’s what the <code>Union</code> is for) and <code>T</code> has to be a subtype of real numbers (e.g.&nbsp;floats or integers). The option to have scalar <code>T</code> is because there’s no reason to pack a single number into an array if the lattice happens to be 1-dimensional. As to why I keep T so generic, there might be situations where we purposefully do not want it to be a 64-bit float. One such case is if I ever decide to also use this soon-to-be library for calculations on GPUs which often natively support only 32-bit floats (or we might want to use a symbolic type, <code>BigFloat</code>, etc.)</em></p>
-<p><em>The next thing is <a href="https://docs.julialang.org/en/v1/manual/constructors/">constructors</a>, which come in two flavors. If you define a type <code>foo</code> with fields <code>bar</code> and <code>baz</code>, it will get a default constructor method <code>foo(bar, baz)</code>. But you might not want to do that, as in our case: The fields <code>G</code> and <code>V</code> are all determined by <code>R</code> and we want to enforce that relationship. That’s why I defined a function <code>Lattice(R)</code> inside the type definition, which overrides the default constructor. It has to return using the <code>new</code> method and now causes the original default constructor <code>Lattice(R, G, V)</code> to not exist - this is called an inner constructor. Then I use multiple dispatch to define more variations of constructors that all call the base one. First is a constructor that looks almost like the base, but it takes a type of <code>Quantity</code>, which is a unitful quantity (e.g.&nbsp;1 nm). It converts the quantity into a number (by scaling it to the Bohr radius) and feeds that to the base constructor. The other two constructors are convenience constructors, which build the matrix <code>R</code> out of <a href="https://en.wikipedia.org/wiki/Lattice_constant">lattice parameters</a> (and rotate the whole thing such that the last lattice vector is always parallel to the last cartesian axis). These are called outer constructors, for obvious reasons. They do not override or invalidate the default constructor unless you shadow it (define an outer constructor with the same type signature).</em></p>
-<p>So why do I store the primitive vectors in matrices? First, it’s convenient. Second, it allows for a better representation of positions: In many cases, the primitive vectors do not form an orthogonal basis and mix cartesian coordinates (you’ll see concrete examples in a second). And many calculations or measurements are much easier to express in fractions of the lattice constants. So we’ll introduce <em>reduced</em> coordinates <img src="https://latex.codecogs.com/png.latex?x_j">, that form an orthogonal system where the position vectors are fractions (or multiples) of the primitive vectors. The transformation of these reduced coordinates back to physical coordinates <img src="https://latex.codecogs.com/png.latex?r_i"> is the matrix <img src="https://latex.codecogs.com/png.latex?R_%7Bij%7D">, i.e <img src="https://latex.codecogs.com/png.latex?r_i%20=%20R_%7Bij%7D%20x_j"> or <img src="https://latex.codecogs.com/png.latex?%5Cvec%7Br%7D%20=%20%5Cmathbf%7BR%7D%20%5Cvec%7Bx%7D">. The same deal for reciprocal space vectors, although, one should keep in mind that the reciprocal vectors are covectors to real-space vectors. Strictly speaking, they should either be row vectors (we follow the normal-people convention of regular vectors being column vectors) and the matrix <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BG%7D"> multiplies them from the right, or the matrix has to be transposed. It is constructed by using the definition of reciprocal lattice, where <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BR%7D%20%5Ccdot%20%5Cmathbf%7BG%7D%20=%202%5Cpi%20%5Ccdot%20%5Cmathbf%7B1%7D">, which leads to <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BG%7D%20=%202%5Cpi%20%5Cmathbf%7BR%7D%5E%7B-1%7D">. Then there’s also unit cell volume <code>V</code> (LPT: a determinant of a matrix is the volume of the parallelepiped spanned by the vectors in the matrix). It’s frequently used for normalization and easy to calculate, so I threw it in.</p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+About <code>Struct</code>s and constructors
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>A lot going on here. Because the notion of the lattice will come up time and time again, I created a <a href="https://docs.julialang.org/en/v1/manual/types/#Composite-Types">composite type</a> <code>Lattice</code>, which is a structure that holds the fields <code>R</code>, <code>G</code> and <code>V</code>. I also made it parametric over a restricted set of types, where <code>R</code> and <code>G</code> can be either of type <code>T</code> or an array of <code>T</code>s (that’s what the <code>Union</code> is for) and <code>T</code> has to be a subtype of real numbers (e.g.&nbsp;floats or integers). The option to have scalar <code>T</code> is because there’s no reason to pack a single number into an array if the lattice happens to be 1-dimensional. As to why I keep T so generic, there might be situations where we purposefully do not want it to be a 64-bit float. One such case is if I ever decide to also use this soon-to-be library for calculations on GPUs which often natively support only 32-bit floats (or we might want to use a symbolic type, <code>BigFloat</code>, etc.)</p>
+<p>The next thing is <a href="https://docs.julialang.org/en/v1/manual/constructors/">constructors</a>, which come in two flavors. If you define a type <code>foo</code> with fields <code>bar</code> and <code>baz</code>, it will get a default constructor method <code>foo(bar, baz)</code>. But you might not want to do that, as in our case: The fields <code>G</code> and <code>V</code> are all determined by <code>R</code> and we want to enforce that relationship. That’s why I defined a function <code>Lattice(R)</code> inside the type definition, which overrides the default constructor. It has to return using the <code>new</code> method and now causes the original default constructor <code>Lattice(R, G, V)</code> to not exist - this is called an inner constructor. Then I use multiple dispatch to define more variations of constructors that all call the base one. First is a constructor that looks almost like the base, but it takes a type of <code>Quantity</code>, which is a unitful quantity (e.g.&nbsp;1 nm). It converts the quantity into a number (by scaling it to the Bohr radius) and feeds that to the base constructor. The other two constructors are convenience constructors, which build the matrix <code>R</code> out of <a href="https://en.wikipedia.org/wiki/Lattice_constant">lattice parameters</a> (and rotate the whole thing such that the last lattice vector is always parallel to the last cartesian axis). These are called outer constructors, for obvious reasons. They do not override or invalidate the default constructor unless you shadow it (define an outer constructor with the same type signature).</p>
+</div>
+</div>
+</div>
+<p>So why do I store the primitive vectors in matrices? First, it’s convenient. Second, it allows for a better representation of positions: In many cases, the primitive vectors do not form an orthogonal basis and mix cartesian coordinates (you’ll see concrete examples in a second). And many calculations or measurements are much easier to express in fractions of the lattice constants. So we’ll introduce <em>reduced</em> coordinates <img src="https://latex.codecogs.com/png.latex?x_j">, that form an orthogonal system where the position vectors are fractions (or multiples) of the primitive vectors. The transformation of these reduced coordinates back to physical coordinates <img src="https://latex.codecogs.com/png.latex?r_i"> is the matrix <img src="https://latex.codecogs.com/png.latex?R_%7Bij%7D">, i.e <img src="https://latex.codecogs.com/png.latex?r_i%20=%20R_%7Bij%7D%20x_j"> or <img src="https://latex.codecogs.com/png.latex?%5Cvec%7Br%7D%20=%20%5Cmathbf%7BR%7D%20%5Cvec%7Bx%7D">. The same deal for reciprocal space vectors, although, one should keep in mind that the reciprocal vectors are covectors to real-space vectors. Strictly speaking, they should either be row vectors (we follow the normal-people convention of regular vectors being column vectors) and the matrix <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BG%7D"> multiplies them from the right, or the matrix has to be transposed. It is constructed by using the definition of reciprocal lattice, where <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BR%7D%20%5Ccdot%20%5Cmathbf%7BG%7D%20=%202%5Cpi%20%5Ccdot%20%5Cmathbf%7B1%7D">, which leads to <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BG%7D%20=%202%5Cpi%20%5Cmathbf%7BR%7D%5E%7B-1%7D">. Then there’s also unit cell volume <code>V</code>.<sup>2</sup></p>
 <p>One last thing to mention here is that I also included the parameter <code>N</code>. It will be used to express the dimensionality of the lattice for multiple dispatch purposes, so I overload the <code>ndims</code> method for our <code>Lattice</code> type:</p>
-<div class="cell" data-execution_count="6">
+<div class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><span class="bu" style="color: null;">Base</span>.<span class="fu" style="color: #4758AB;">ndims</span>(l<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Lattice{T,N}</span>) <span class="kw" style="color: #003B4F;">where</span> {T,N} <span class="op" style="color: #5E5E5E;">=</span> N</span></code></pre></div>
 </div>
 <p>Our next step in the computational representation of the crystal is the unit cell, which is just a collection of site positions. That’s pretty straightforward:</p>
-<div class="cell" data-execution_count="7">
+<div class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><span class="kw" style="color: #003B4F;">struct</span> UnitCell{T, N}</span>
 <span id="cb8-2">    positions<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Vector{T}</span></span>
 <span id="cb8-3">    species<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Vector{Symbol}</span></span>
@@ -167,14 +212,14 @@
 <span id="cb8-23"><span class="kw" style="color: #003B4F;">end</span>;</span></code></pre></div>
 </div>
 <p>I follow the convention used in other similar software, where I also store the labels of the sites. For cases of the sites are identical or unlabeled, I provide convenience constructor methods. Note that the site positions are in <strong>reduced</strong> coordinates (an almost universally used convention). I again overload the dimensionality and length methods:</p>
-<div class="cell" data-execution_count="8">
+<div class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><span class="bu" style="color: null;">Base</span>.<span class="fu" style="color: #4758AB;">ndims</span>(c<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">UnitCell{T,N}</span>) <span class="kw" style="color: #003B4F;">where</span> {T,N} <span class="op" style="color: #5E5E5E;">=</span> N</span></code></pre></div>
 </div>
-<div class="cell" data-execution_count="9">
+<div class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><span class="bu" style="color: null;">Base</span>.<span class="fu" style="color: #4758AB;">length</span>(c<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">UnitCell</span>) <span class="op" style="color: #5E5E5E;">=</span> c.positions <span class="op" style="color: #5E5E5E;">|&gt;</span> length</span></code></pre></div>
 </div>
 <p>With the Bravais lattice and unit cell being taken care of, we can finish our act of pure creation by defining the final <code>Crystal</code> type, which is just the repeating unit cell. To do that, we only need to package it together (the periodic repeating will be handled by the actual computational routines as necessary):</p>
-<div class="cell" data-execution_count="10">
+<div class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><span class="kw" style="color: #003B4F;">struct</span> Crystal{N}</span>
 <span id="cb11-2">    lattice<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Lattice</span></span>
 <span id="cb11-3">    cell<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">UnitCell</span></span>
@@ -184,9 +229,24 @@
 <span id="cb11-7">    <span class="kw" style="color: #003B4F;">end</span></span>
 <span id="cb11-8"><span class="kw" style="color: #003B4F;">end</span></span></code></pre></div>
 </div>
-<p><em>Inner constructor here is to handle the type inference of the <a href="https://docs.julialang.org/en/v1/manual/types/#Parametric-Types">parametric type</a>.</em></p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Note
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Inner constructor here is to handle the type inference of the <a href="https://docs.julialang.org/en/v1/manual/types/#Parametric-Types">parametric type</a>.</p>
+</div>
+</div>
+</div>
 <p>To check if we did everything correctly, it would be nice to visualize the crystals. I guess the proper way would be to create a method that will export the information into some common file format and use proper crystallography tools (I use <a href="http://www.jp-minerals.org/vesta/en/">VESTA</a>), but that would require me to read through their specs. I’m not about to sink to such lows as following the fast and robust approach, so I’ll make my own visualization routine using <code>Makie</code> (blackjack and hookers not included):</p>
-<div class="cell" data-execution_count="11">
+<div class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">plotcrystal!</span>(ax, c<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Crystal</span>, vertpos; ncells, showcell, showbonds, cmap)</span>
 <span id="cb12-2">    R <span class="op" style="color: #5E5E5E;">=</span> c.lattice.R</span>
 <span id="cb12-3"></span>
@@ -242,7 +302,7 @@
 </div>
 <p>Oh boy…Ok, so what does it do? Plot crystals, obviously. It has the option to show a supercell consisting of multiple unit cells (the <code>ncells</code> argument), show the unit cell outline (<code>showcell</code>), and show bonds between nearest neighbors (<code>showbonds</code>). Let’s ignore the supercell for a moment, and see what it does in a single unit cell. The sites are easiest, where it just iterates over their positions and plots them as a scatter-plot (the color is determined by the site label automatically). The cell outline is very easy thanks to our use of reduced coordinates because, in those, it’s always a unit square/cube. The <code>vertpos</code> argument expects a matrix where the columns are the unit cell vertices (in reduced coordinates) and it plots a path between them (I use multiple dispatch here so that users don’t have to think about it). The bonds of nearest neighbors are found by replicating all atomic positions also in cells around the current unit cell, sorting them by length, and getting rid of all that have a length of 0 or larger than the smallest length. Extention to drawing a supercell is trivial because, in reduced coordinates, cells are integer multiples of length apart. For good measure, I also added the <code>cmap</code> argument that accepts any of the Makie-compatible <a href="https://makie.juliaplots.org/stable/documentation/colors/">color schemes</a> for all the people who might be colorblind, disagree with my taste, or both.</p>
 <p>Let’s try it out. If you want to find lattice constants and unit cells of various materials, I recommend using the <a href="https://materialsproject.org">Materials Project</a>. It’s a database of calculated material structures (and a bunch of their electronic and mechanical properties) that gives the lattice parameters in the format our code expects. We can try graphene and hexagonal Boron Nitride (hBN), both with the same hexagonal structure. Hexagonal crystals have a triangular lattice with two atoms per unit cell, with the difference between graphene and hBN being that the latter has different atoms at the inequivalent positions:</p>
-<div class="cell" data-execution_count="12">
+<div class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb13-1">graphene <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Crystal</span>(</span>
 <span id="cb13-2">    <span class="fu" style="color: #4758AB;">Lattice</span>(<span class="fl" style="color: #AD0000;">2.468</span>Å, <span class="fl" style="color: #AD0000;">2.468</span>Å, <span class="fl" style="color: #AD0000;">120</span>),</span>
 <span id="cb13-3">    <span class="fu" style="color: #4758AB;">UnitCell</span>(<span class="op" style="color: #5E5E5E;">:</span>C, [<span class="fl" style="color: #AD0000;">2</span><span class="op" style="color: #5E5E5E;">/</span><span class="fl" style="color: #AD0000;">3</span>, <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span><span class="fl" style="color: #AD0000;">3</span>], [<span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span><span class="fl" style="color: #AD0000;">3</span>, <span class="fl" style="color: #AD0000;">2</span><span class="op" style="color: #5E5E5E;">/</span><span class="fl" style="color: #AD0000;">3</span>])</span>
@@ -255,22 +315,22 @@
 </div>
 <p>It might be worth mentioning that the choice of primitive lattice vectors and site positions is not unique, and you might see different ways of creating the structure. (another option is having one atom at the origin and using 60º as the lattice angle).</p>
 <p>With that done, we can access the primitive vector matrix that, in this case, does not form an orthogonal basis, as advertised earlier:</p>
-<div class="cell" data-execution_count="13">
+<div class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb14-1">graphene.lattice.R</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="13">
+<div class="cell-output cell-output-display" data-execution_count="14">
 <pre><code>2×2 Matrix{Float64}:
   1.13104   0.0
  -0.653005  1.30601</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="14">
+<div class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb16-1">graphene.lattice.R[<span class="op" style="color: #5E5E5E;">:</span>,<span class="fl" style="color: #AD0000;">1</span>] <span class="op" style="color: #5E5E5E;">⋅</span> graphene.lattice.R[<span class="op" style="color: #5E5E5E;">:</span>,<span class="fl" style="color: #AD0000;">2</span>] <span class="op" style="color: #5E5E5E;">!=</span> <span class="fl" style="color: #AD0000;">0</span></span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="14">
+<div class="cell-output cell-output-display" data-execution_count="15">
 <pre><code>true</code></pre>
 </div>
 </div>
 <p>After doing all the work, the visualization is easy:</p>
-<div class="cell" data-execution_count="15">
+<div class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb18-1">fig2ds <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Figure</span>()</span>
 <span id="cb18-2">axgs <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Axis</span>(fig2ds; title <span class="op" style="color: #5E5E5E;">=</span> <span class="st" style="color: #20794D;">"graphene"</span>, xlabel<span class="op" style="color: #5E5E5E;">=</span><span class="st" style="color: #20794D;">"x/a₀"</span>, ylabel<span class="op" style="color: #5E5E5E;">=</span><span class="st" style="color: #20794D;">"y/a₀"</span>, xgridvisible<span class="op" style="color: #5E5E5E;">=</span><span class="cn" style="color: #8f5902;">false</span>, ygridvisible<span class="op" style="color: #5E5E5E;">=</span><span class="cn" style="color: #8f5902;">false</span>, aspect <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">DataAspect</span>())</span>
 <span id="cb18-3">axhbns <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Axis</span>(fig2ds; title <span class="op" style="color: #5E5E5E;">=</span> <span class="st" style="color: #20794D;">"hBN"</span>, xlabel<span class="op" style="color: #5E5E5E;">=</span><span class="st" style="color: #20794D;">"x/a₀"</span>, ylabel<span class="op" style="color: #5E5E5E;">=</span><span class="st" style="color: #20794D;">"y/a₀"</span>, xgridvisible<span class="op" style="color: #5E5E5E;">=</span><span class="cn" style="color: #8f5902;">false</span>, ygridvisible<span class="op" style="color: #5E5E5E;">=</span><span class="cn" style="color: #8f5902;">false</span>, aspect <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">DataAspect</span>())</span>
@@ -281,20 +341,36 @@
 <span id="cb18-8">fig2ds[<span class="fl" style="color: #AD0000;">1</span>,<span class="fl" style="color: #AD0000;">2</span>] <span class="op" style="color: #5E5E5E;">=</span> axhbns</span>
 <span id="cb18-9"></span>
 <span id="cb18-10"><span class="fu" style="color: #4758AB;">current_figure</span>()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="15">
+<div class="cell-output cell-output-display" data-execution_count="16">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-16-output-1.png" class="img-fluid"></p>
 </div>
 </div>
-<p><em>The way of plotting with <code>Makie</code> is almost identical to Python’s Matplotlib library if you’re using the object-oriented API (which you should be doing). I create a figure, with two axes, fill those two axes with the <code>plotcrystal!</code> routine, and position them into the figure. It’s that simple. Sneaky TODO: At the time of writing this, I couldn’t figure out how to make legends work with 3D <code>meshscatter</code> plots. Hopefully, I’ll find a way to fix that.</em></p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Note
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The way of plotting with <code>Makie</code> is almost identical to Python’s Matplotlib library if you’re using the object-oriented API (which you should be doing). I create a figure, with two axes, fill those two axes with the <code>plotcrystal!</code> routine, and position them into the figure. It’s that simple.</p>
+<p>Sneaky TODO: At the time of writing this, I couldn’t figure out how to make legends work with 3D <code>meshscatter</code> plots. Hopefully, I’ll find a way to fix that.</p>
+</div>
+</div>
+</div>
 <p>As a quick tidbit, you can also nicely identify the two different crystal edges commonly mentioned in literature on nanotubes and other finite-sized systems. When you roll up graphene into a nanotube, you can do it along the unit cell edges, called zigzag edge, for obvious reasons. Or you can do it along a line perpendicular to those, called the armchair edge. If you stare at it for long enough, you can kinda-sorta see the armchair, but the names had to come from the same type of people who named stellar constellations (seriously, who looked at <a href="https://upload.wikimedia.org/wikipedia/commons/8/86/UrsaMajorCC.jpg">this</a> and thought “Totally a bear.”).</p>
 <p>The routine works just as well for 3D crystals. Let’s take the diamond, which has two carbon atoms in a FCC lattice (sometimes called the diamond cubic lattice). The primitive unit cell of a FCC lattice is a rhombohedron, and the atoms are at positions (0,0,0) and (1/4,1/4,1/4), as I’m being told by the Materials Project’s <a href="https://materialsproject.org/materials/mp-66/">entry on diamond</a>:</p>
-<div class="cell" data-execution_count="16">
+<div class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb19-1">diamond <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Crystal</span>(</span>
 <span id="cb19-2">    <span class="fu" style="color: #4758AB;">Lattice</span>(<span class="fl" style="color: #AD0000;">2.527</span>Å, <span class="fl" style="color: #AD0000;">2.527</span>Å, <span class="fl" style="color: #AD0000;">2.527</span>Å, <span class="fl" style="color: #AD0000;">60</span>, <span class="fl" style="color: #AD0000;">60</span>, <span class="fl" style="color: #AD0000;">60</span>),</span>
 <span id="cb19-3">    <span class="fu" style="color: #4758AB;">UnitCell</span>(<span class="op" style="color: #5E5E5E;">:</span>C, [<span class="fl" style="color: #AD0000;">0.0</span>, <span class="fl" style="color: #AD0000;">0.0</span>, <span class="fl" style="color: #AD0000;">0.0</span>], [<span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span><span class="fl" style="color: #AD0000;">4</span>, <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span><span class="fl" style="color: #AD0000;">4</span>, <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span><span class="fl" style="color: #AD0000;">4</span>])</span>
 <span id="cb19-4">);</span></code></pre></div>
 </div>
-<div class="cell" data-execution_count="17">
+<div class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb20-1">fig3d <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Figure</span>()</span>
 <span id="cb20-2">axds <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Axis3</span>(fig3d, xlabel<span class="op" style="color: #5E5E5E;">=</span><span class="st" style="color: #20794D;">"x/a₀"</span>, ylabel<span class="op" style="color: #5E5E5E;">=</span><span class="st" style="color: #20794D;">"y/a₀"</span>, zlabel<span class="op" style="color: #5E5E5E;">=</span><span class="st" style="color: #20794D;">"z/a₀"</span>, xgridvisible<span class="op" style="color: #5E5E5E;">=</span><span class="cn" style="color: #8f5902;">false</span>, ygridvisible<span class="op" style="color: #5E5E5E;">=</span><span class="cn" style="color: #8f5902;">false</span>, zgridvisible<span class="op" style="color: #5E5E5E;">=</span><span class="cn" style="color: #8f5902;">false</span>, aspect <span class="op" style="color: #5E5E5E;">=</span> <span class="op" style="color: #5E5E5E;">:</span>data)</span>
 <span id="cb20-3">axds_single <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Axis3</span>(fig3d, xlabel<span class="op" style="color: #5E5E5E;">=</span><span class="st" style="color: #20794D;">"x/a₀"</span>, ylabel<span class="op" style="color: #5E5E5E;">=</span><span class="st" style="color: #20794D;">"y/a₀"</span>, zlabel<span class="op" style="color: #5E5E5E;">=</span><span class="st" style="color: #20794D;">"z/a₀"</span>, xgridvisible<span class="op" style="color: #5E5E5E;">=</span><span class="cn" style="color: #8f5902;">false</span>, ygridvisible<span class="op" style="color: #5E5E5E;">=</span><span class="cn" style="color: #8f5902;">false</span>, zgridvisible<span class="op" style="color: #5E5E5E;">=</span><span class="cn" style="color: #8f5902;">false</span>, aspect <span class="op" style="color: #5E5E5E;">=</span> <span class="op" style="color: #5E5E5E;">:</span>data)</span>
@@ -305,14 +381,14 @@
 <span id="cb20-8">fig3d[<span class="fl" style="color: #AD0000;">1</span>,<span class="fl" style="color: #AD0000;">2</span>] <span class="op" style="color: #5E5E5E;">=</span> axds_single</span>
 <span id="cb20-9"></span>
 <span id="cb20-10"><span class="fu" style="color: #4758AB;">current_figure</span>()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="17">
+<div class="cell-output cell-output-display" data-execution_count="18">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-18-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>I plot a supercell that shows the diamond structure and a single unit cell with outlines, so you can see how the atoms and cells are stacked to create the diamond lattice. You can also rigidly offset the coordinates in the unit cell so that the two positions are (1/4,1/4,1/4) and (3/4,3/4,3/4), and the atoms sit neatly in the middle of the cell (it doesn’t affect physics).</p>
 </section>
-<section id="who-is-léon-brillouin" class="level3">
-<h3 class="anchored" data-anchor-id="who-is-léon-brillouin">Who is Léon Brillouin?</h3>
+<section id="sec-cmpm3-BZ" class="level3">
+<h3 class="anchored" data-anchor-id="sec-cmpm3-BZ">Who is Léon Brillouin?</h3>
 <p>Having the structure of the crystals is nice and all, but that’s not the reason why we’re here. We want to be able to compute the <em>properties</em> of these crystals and, eventually, also optimize their shape. For that, we need to solve the Schroedinger equation with a Hamiltonian corresponding to the crystal. The Hamiltonian in general will consist of two parts: The Hamiltonian describing the electrons in the crystal and the Hamiltonian describing the atomic cores (and there’s also a part that describes how these two interact). Turns out that most properties of the crystal are due to the electrons. Also, experimentally, we’re most often also probing the electronic system, where interaction with e.g., light is mostly through scattering or absorption of photons by electrons (not to mention direct measurements of the electronic system, like with resistance measurements). For this reason, we’ll restrict our problem to just the dynamics of the electrons, with the atoms being there just as sources of time-independent electrostatic potential. This is called the Born-Oppenheimer approximation, and the physical motivation for this comes from the huge difference between electron and core masses (by a ratio of roughly 1/2000), which means that the electron dynamics are many orders of magnitude faster and the typical energies for electronic degrees of freedom are proportionally larger than the lattice degrees of freedom. The second approximation that we’ll make is that we assume non-interacting electrons. One would think that this is a rather strong assumption that does not correspond to reality but it turns out to work very well for microelectronics industry even these days. As we progress to more sophisticated methods, both of these approximations will be removed but, for now, our world is fully determined by solutions to this Schroedinger equation (in Rydberg units):</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7B1%7D%7B2%7D%5Cnabla%5E2%20%5CPsi(%5Cvec%7Br%7D)%20+%20V(%5Cvec%7Br%7D)%20%5CPsi(%5Cvec%7Br%7D)%20=%20E%20%5CPsi(%5Cvec%7Br%7D);%20%5Cqquad%20V(%5Cvec%7Br%7D%20+%20%5Cvec%7BR%7D_n)%20=%20V(%5Cvec%7Br%7D).%0A"></p>
 <p>Because an ideal crystal is infinitely periodic, doing calculations in a box like we did in the <a href="comp-phys-mass-2.html">previous part</a> will not lead to a faithful representation of wavefunctions. A much better option is to represent states in their full wave-like glory.</p>
@@ -335,12 +411,12 @@
 <p>where I absorbed the whole sum over reciprocal lattice vectors into a lattice-periodic function <img src="https://latex.codecogs.com/png.latex?u_%7B%5Cvec%7Bk%7D%7D%20(%5Cvec%7Br%7D)"> (and I also quietly hid the normalization into it). This is known as <a href="https://en.wikipedia.org/wiki/Bloch's_theorem">Bloch’s theorem</a>, and it’s the central building block of everything else in solid state and condensed matter physics. It’s so crucial because it proves that single-electron eigenstates of any crystal Hamiltonian are plane wave-like functions (there’s some modulation by the function <img src="https://latex.codecogs.com/png.latex?u_%7B%5Cvec%7Bk%7D%7D%20(%5Cvec%7Br%7D)">) with quasi-momentum <img src="https://latex.codecogs.com/png.latex?k">. Combined with the knowledge we gained in the previous section, this allows for a complete description of the full single-electronic spectrum within the Brillouin zone.</p>
 <p>Technically, you can solve an arbitrary single-electron problem by solving the system of equations for <img src="https://latex.codecogs.com/png.latex?c_%7B%5Cvec%7Bk%7D%7D">, but that turns out to be a not-so-easy task. As a matter of fact, it’s so not easy that people don’t usually even attempt a general solution…</p>
 </section>
-<section id="on-the-right-momentum-path" class="level3">
-<h3 class="anchored" data-anchor-id="on-the-right-momentum-path">On the right (momentum) path</h3>
+<section id="sec-cmpm3-kpath" class="level3">
+<h3 class="anchored" data-anchor-id="sec-cmpm3-kpath">On the right (momentum) path</h3>
 <p>Before we get to actual computation, it’s prudent to quickly think about how we typically graph quantities as functions of momentum <img src="https://latex.codecogs.com/png.latex?%5Cvec%7Bk%7D"> (or position, for that matter). It’s easy in one dimension, and you could also imagine plotting things as surfaces in two-dimensional systems. But plotting something as a dense function of 3D space becomes an issue. Your only option is to use lower-dimensional slices of the full space, and in a quantitative field like this one, you better make sure that those slices are as information-packed as possible.</p>
 <p>Fortunately, because there are only a few Bravais lattices, there are equally few reciprocal lattices, and this structure can be exploited. Due to the high symmetry of the crystals and their duals, you can get a good feeling for the overall structure by working only along certain paths in the momentum space. These paths are usually called branches and they are straight lines that connect places in the Brillouin zone called <a href="https://en.wikipedia.org/wiki/Brillouin_zone#Critical_points">high symmetry (or critical) points</a>, called so because they are important for the symmetry operations of the crystal’s space group. The only thing I remember is that <img src="https://latex.codecogs.com/png.latex?%5CGamma"> is the point <img src="https://latex.codecogs.com/png.latex?%5Cvec%7Bk%7D%20=%20%5Cvec%7B0%7D">. The rest I have to look up, so don’t feel bad for not remembering which labels belong to what positions.</p>
-<p>Many of you probably encountered plots like this, even if you are not familiar with what you just read. It’s effectively the only way you’ll see people report <a href="https://wiki.alcf.anl.gov/wparker/images/a/af/PTO_amm2_electronic_band_structure.png">band structure</a> calculations or measurements. Because calculating these is the most central part of computational solid state physics and chemistry, we should prepare a simple routine that will prepare the k-space trajectories for us:</p>
-<div class="cell" data-execution_count="18">
+<p>Many of you probably encountered plots like this, even if you are not familiar with what you just read. It’s effectively the only way you’ll see people report <a href="https://i.stack.imgur.com/nCqb4.gif">band structure</a> calculations or measurements. Because calculating these is the most central part of computational solid state physics and chemistry, we should prepare a simple routine that will prepare the k-space trajectories for us:</p>
+<div class="cell" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb21-1"><span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">kpath</span>(kpoints, dk)</span>
 <span id="cb21-2">    vertices <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">reverse</span>([point.second for point <span class="op" style="color: #5E5E5E;">∈</span> kpoints])</span>
 <span id="cb21-3">    labels <span class="op" style="color: #5E5E5E;">=</span> [point.first for point <span class="op" style="color: #5E5E5E;">∈</span> kpoints]</span>
@@ -371,13 +447,13 @@
 <p>Nothing particularly exciting or complicated. The function just takes a vector of pairs <code>point_name =&gt; [coordinate]</code> in order of how they are supposed to be traversed (I wanted to go with a dictionary, but I need some of the points to repeat), and the k-spacing <em>along the path</em>. It returns a named 3-tuple, where <code>path</code> is a vector of reduced k-coordinates along the path, <code>plength</code> is the distance along the path, and <code>ppoints</code> a vector of pairs <code>point_name =&gt; distance_at_point</code>. We don’t really need anything except <code>path</code>, but the other two are very useful for plotting.</p>
 <p>Now back to physics.</p>
 </section>
-<section id="free-as-the-wind" class="level3">
-<h3 class="anchored" data-anchor-id="free-as-the-wind">Free as the wind</h3>
+<section id="sec-cmpm3-fe" class="level3">
+<h3 class="anchored" data-anchor-id="sec-cmpm3-fe">Free as the wind</h3>
 <p>While Bloch’s theorem is constructive in terms of defining what the physical states are, it has proven to be cumbersome in practical reality. Finding the expansion coefficients with some realistic Hamiltonian requires solving humongous algebraic systems and often makes it hard to incorporate (or gain) some physical intuition or phenomenology. Because of that, we developed a bunch of models and methods which are limiting cases.</p>
 <p>The by far simplest method to give you a very, <em>very</em> rough idea of a band structure, is the use of what’s known as the empty lattice approximation. As the name suggests, you take an empty space and, in your mind’s eye, imagine that it’s periodic, eliminating any complications that might or might not arise from your feeble attempts at using Bloch’s theorem. All this does is, rather depressingly, take the free electron and imprison it in the Brillouin zone. Or, in less prosaic terms, you take the free-space parabolic dispersion, replicate it offset by the reciprocal vectors <img src="https://latex.codecogs.com/png.latex?%5C%7B%20%5Cvec%7BG%7D_n%20%5C%7D"> and cut out only the Brillouin zone. The Hamiltonian in that case is very easy:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0AH(%5Cvec%7Bk%7D)%20=%20%5Csum_%7B%5Cleft%5C%7B%20%5Cvec%7BG%7D_n%20%5Cright%5C%7D%7D%5Cfrac%7B1%7D%7B2%7D%20%5Cleft(%20%5Cvec%7Bk%7D%20%20+%20%5Cvec%7BG%7D_n%5Cright)%5E2,%0A"></p>
 <p>Which is just a diagonal matrix. To put this in code, we only have to decide how many bands we want to recover (i.e., how many <img src="https://latex.codecogs.com/png.latex?%5Cvec%7BG%7D_n"> we use), which will determine the size of the matrix.</p>
-<div class="cell" data-execution_count="19">
+<div class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb22-1"><span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">elH</span>(k, n, crystal<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Crystal</span>)</span>
 <span id="cb22-2">    G <span class="op" style="color: #5E5E5E;">=</span> crystal.lattice.G</span>
 <span id="cb22-3">    <span class="fu" style="color: #4758AB;">map</span>(<span class="fu" style="color: #4758AB;">sort</span>(<span class="bu" style="color: null;">Iterators</span>.<span class="fu" style="color: #4758AB;">product</span>(<span class="fu" style="color: #4758AB;">fill</span>(<span class="op" style="color: #5E5E5E;">-</span>n<span class="op" style="color: #5E5E5E;">:</span>n,<span class="fu" style="color: #4758AB;">length</span>(k))<span class="op" style="color: #5E5E5E;">...</span>) <span class="op" style="color: #5E5E5E;">|&gt;</span> collect <span class="op" style="color: #5E5E5E;">|&gt;</span> vec, by<span class="op" style="color: #5E5E5E;">=</span>norm)) <span class="cf" style="color: #003B4F;">do</span> Gn</span>
@@ -388,7 +464,7 @@
 </div>
 <p><em>It’s not </em>really* a Hamiltonian because I’m not returning a matrix. This is because it’s already diagonal, so I just return the vector of eigenvalues by using linear combinations of all <img src="https://latex.codecogs.com/png.latex?%5Cvec%7BG%7D">s up to <code>n</code>-times the primitive reciprocal vectors.*</p>
 <p>To demonstrate, it’s best to start with a 1D case:</p>
-<div class="cell" data-execution_count="20">
+<div class="cell" data-execution_count="21">
 <div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb23-1">crystal1D <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Crystal</span>(</span>
 <span id="cb23-2">    <span class="fu" style="color: #4758AB;">Lattice</span>(<span class="fl" style="color: #AD0000;">1.0</span>),</span>
 <span id="cb23-3">    <span class="fu" style="color: #4758AB;">UnitCell</span>(<span class="fl" style="color: #AD0000;">0.0</span>)</span>
@@ -400,7 +476,7 @@
 <span id="cb23-9"></span>
 <span id="cb23-10">es1D <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">elH1D</span>.(kpath1D);</span></code></pre></div>
 </div>
-<div class="cell" data-execution_count="21">
+<div class="cell" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb24-1">fig_1D <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Figure</span>()</span>
 <span id="cb24-2">ax_1D1 <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Axis</span>(fig_1D, title<span class="op" style="color: #5E5E5E;">=</span><span class="st" style="color: #20794D;">"Extended zone scheme"</span>)</span>
 <span id="cb24-3">ax_1D2 <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Axis</span>(fig_1D, title<span class="op" style="color: #5E5E5E;">=</span><span class="st" style="color: #20794D;">"First Brillouin zone"</span>)</span>
@@ -422,20 +498,20 @@
 <span id="cb24-19">fig_1D[<span class="fl" style="color: #AD0000;">1</span>,<span class="fl" style="color: #AD0000;">1</span>] <span class="op" style="color: #5E5E5E;">=</span> ax_1D2</span>
 <span id="cb24-20"></span>
 <span id="cb24-21"><span class="fu" style="color: #4758AB;">current_figure</span>()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="21">
+<div class="cell-output cell-output-display" data-execution_count="22">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-22-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>In one dimension, life is simple. The reciprocal space is just a line, so we don’t have to deal with k-branches and <code>n</code>=1 (<img src="https://latex.codecogs.com/png.latex?%5Cleft%5C%7B%20%5Cvec%7BG%7D_n%20%5Cright%5C%7D%20=%20%5Cleft%5C%7B%20-1,0,1%20%5Cright%5C%7D">) is sufficient to recover three “bands”. On the left you see the conventional way to graph band diagrams (Brillouin zone for a 1D crystal is the line segment <img src="https://latex.codecogs.com/png.latex?%5Cleft%5B-%5Cfrac%7B%5Cpi%7D%7Ba%7D,%5Cfrac%7B%5Cpi%7D%7Ba%7D%20%5Cright%5D">, or <img src="https://latex.codecogs.com/png.latex?%5Cleft%5B-%5Cfrac%7B1%7D%7B2%7D,%5Cfrac%7B1%7D%7B2%7D%20%5Cright%5D"> in reduced coordinates). On the right, I plotted the band diagram in what’s known as the extended zone, where I included neighboring reciprocal cells. This way, you can see how the shifted parabolas lead to the bands in the first zone.</p>
 <p>You won’t find too many one-dimensional crystals in the wild. And if you do, they frequently turn out to be insulators (for reasons that we’ll get into when I’ll do the part on electron-phonon interaction), so the empty lattice approximation will not do us too much good from the practical perspective. We should move up to three dimensions, specifically to a crystal of plain old aluminum. I choose aluminum because it’s a simple metal with good conductivity and atomic orbital structure that isn’t prone to any relativistic nonsense. In materials like that, the band structure can be reasonably well described by effectively a bucket of electrons in empty space. By looking it up in our trusty Materials Project registry, we find out that aluminum has a simple <a href="https://materialsproject.org/materials/mp-134/">FCC structure</a> with a lattice constant of 2.856 Å and a single atom in the unit cell:</p>
-<div class="cell" data-execution_count="22">
+<div class="cell" data-execution_count="23">
 <div class="sourceCode cell-code" id="cb25" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb25-1">Al <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Crystal</span>(</span>
 <span id="cb25-2">    <span class="fu" style="color: #4758AB;">Lattice</span>(<span class="fl" style="color: #AD0000;">2.856</span>Å,<span class="fl" style="color: #AD0000;">2.856</span>Å,<span class="fl" style="color: #AD0000;">2.856</span>Å,<span class="fl" style="color: #AD0000;">60</span>,<span class="fl" style="color: #AD0000;">60</span>,<span class="fl" style="color: #AD0000;">60</span>),</span>
 <span id="cb25-3">    <span class="fu" style="color: #4758AB;">UnitCell</span>(<span class="op" style="color: #5E5E5E;">:</span>Al, [<span class="fl" style="color: #AD0000;">0.0</span>,<span class="fl" style="color: #AD0000;">0.0</span>,<span class="fl" style="color: #AD0000;">0.0</span>])</span>
 <span id="cb25-4">);</span></code></pre></div>
 </div>
 <p>Because we won’t be able to fully plot the dispersion in 3D space, we have to start using our <code>kpath</code> routine to construct a path between high symmetry points. I use the trajectory that Materials Project uses so that we can compare our calculations to their DFT results (which should be good to chemical precision for something simple like aluminum):</p>
-<div class="cell" data-execution_count="23">
+<div class="cell" data-execution_count="24">
 <div class="sourceCode cell-code" id="cb26" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb26-1">Alks <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">kpath</span>([</span>
 <span id="cb26-2">        <span class="op" style="color: #5E5E5E;">:</span>Γ <span class="op" style="color: #5E5E5E;">=&gt;</span> [<span class="fl" style="color: #AD0000;">0</span>,<span class="fl" style="color: #AD0000;">0</span>,<span class="fl" style="color: #AD0000;">0</span>],</span>
 <span id="cb26-3">        <span class="op" style="color: #5E5E5E;">:</span>X <span class="op" style="color: #5E5E5E;">=&gt;</span> [<span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span><span class="fl" style="color: #AD0000;">2</span>,<span class="fl" style="color: #AD0000;">0</span>,<span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span><span class="fl" style="color: #AD0000;">2</span>],</span>
@@ -450,12 +526,12 @@
 <span id="cb26-12">        ], <span class="fl" style="color: #AD0000;">0.01</span>);</span></code></pre></div>
 </div>
 <p>The rest is the same as in the 1D calculation.</p>
-<div class="cell" data-execution_count="24">
+<div class="cell" data-execution_count="25">
 <div class="sourceCode cell-code" id="cb27" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb27-1"><span class="fu" style="color: #4758AB;">alH_el</span>(k) <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">elH</span>(k, <span class="fl" style="color: #AD0000;">2</span>, Al)</span>
 <span id="cb27-2"></span>
 <span id="cb27-3">es_al_el <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">alH_el</span>.(Alks.path);</span></code></pre></div>
 </div>
-<div class="cell" data-execution_count="25">
+<div class="cell" data-execution_count="26">
 <div class="sourceCode cell-code" id="cb28" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb28-1">fig_Al_el <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Figure</span>()</span>
 <span id="cb28-2">ax_Al_el <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Axis</span>(fig_Al_el)</span>
 <span id="cb28-3">ax_Al_el.xticks <span class="op" style="color: #5E5E5E;">=</span> ([p.second for p <span class="op" style="color: #5E5E5E;">∈</span> Alks.ppoints], </span>
@@ -471,25 +547,40 @@
 <span id="cb28-13"></span>
 <span id="cb28-14">fig_Al_el[<span class="fl" style="color: #AD0000;">1</span>,<span class="fl" style="color: #AD0000;">1</span>] <span class="op" style="color: #5E5E5E;">=</span> ax_Al_el</span>
 <span id="cb28-15"><span class="fu" style="color: #4758AB;">current_figure</span>()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="25">
+<div class="cell-output cell-output-display" data-execution_count="26">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-26-output-1.png" class="img-fluid"></p>
 </div>
 </div>
-<p><em>Now you see why I added the extra information to the output of <code>kpath</code>, where the x-axis is now the length along the k-path (<code>plength</code>) and the labels sit at the correct places (to do that, you just overwrite the member <code>xticks</code> which is a tuple of two vectors, one with positions on the x-axis and one with strings for the names).</em></p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+On extra output of <code>kpath</code>
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Now you see why I added the extra information to the output of <code>kpath</code>, where the x-axis is now the length along the k-path (<code>plength</code>) and the labels sit at the correct places (to do that, you just overwrite the member <code>xticks</code> which is a tuple of two vectors, one with positions on the x-axis and one with strings for the names).</p>
+</div>
+</div>
+</div>
 <p>The rough features of the band structure are there when compared to the <a href="https://materialsproject.org/materials/mp-134?chemsys=Al#electronic_structure">real stuff</a>, but the details are obviously all wrong. The energy scale is, of course, way off and I don’t even bother showing it. What’s even worse, this calculation would give the same bands for aluminum and diamond (remember, the only thing that plays a role here is the Bravais lattice), which is recognizably not true - one is reflective while the other is transparent, so there has to be a difference in how the electrons interact with light, and that should be reflected in the band structure. To fix all that, we have to stop pretending that a crystal is just an empty space and start including the effects of the atomic potentials.</p>
 </section>
-<section id="not-so-free-after-all" class="level3">
-<h3 class="anchored" data-anchor-id="not-so-free-after-all">Not so free after all</h3>
-<p>We know that the Hamiltonian eigenstates are somewhat plane-wave-like in their nature, so let’s not drop the idea of free-electron dispersion entirely. Instead, let’s pretend that the empty lattice Hamiltonian is <em>the</em> Hamiltonian and that the electrostatic potential of the atomic cores is very weak (ignoring, for the moment, how realistic that is). If that’s true, we can apply <a href="https://en.wikipedia.org/wiki/Perturbation_theory_(quantum_mechanics)">perturbation theory</a> and see what corrections the potential makes to the eigenenergies:</p>
+<section id="sec-cmpm3-nfe" class="level3">
+<h3 class="anchored" data-anchor-id="sec-cmpm3-nfe">Not so free after all</h3>
+<p>We know that the Hamiltonian eigenstates are somewhat plane-wave-like in their nature, so let’s not drop the idea of free-electron dispersion entirely. Instead, let’s pretend that the empty lattice Hamiltonian is <em>the</em> Hamiltonian and that the electrostatic potential of the atomic cores is very weak.<sup>3</sup> If that’s true, we can apply <a href="https://en.wikipedia.org/wiki/Perturbation_theory_(quantum_mechanics)">perturbation theory</a> and see what corrections the potential makes to the eigenenergies:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cvarepsilon_%7B%5Cvec%7Bk%7D%7D%20=%20%5Cvarepsilon%20%5E0%20_%7B%5Cvec%7Bk%7D%7D%20+%20%5Cleft%3C%20%5Cvec%7Bk%7D%20%5Cright%7C%20%5Chat%7BV%7D%20%5Cleft%7C%20%5Cvec%7Bk%7D%20%5Cright%3E%20+%20%5Csum_%7B%5Cvec%7Bk%7D%20%5Cnot=%20%5Cvec%7Bk%7D%5E%7B%5Cprime%7D%7D%20%5Cfrac%7B%5Cleft%7C%20%5Cleft%3C%20%5Cvec%7Bk%7D%5E%7B%5Cprime%7D%20%5Cright%7C%20%5Chat%7BV%7D%20%5Cleft%7C%20%5Cvec%7Bk%7D%20%5Cright%3E%20%5Cright%7C%5E2%7D%7B%5Cvarepsilon%20%5E0%20_%7B%5Cvec%7Bk%7D%7D%20-%20%5Cvarepsilon%20%5E0%20_%7B%5Cvec%7Bk%7D%5E%7B%5Cprime%7D%7D%7D%0A"></p>
 <p>Because the states <img src="https://latex.codecogs.com/png.latex?%5Cleft%7C%20%5Cvec%7Bk%7D%20%5Cright%3E"> are plane waves, the elements <img src="https://latex.codecogs.com/png.latex?%5Cleft%3C%20%5Cvec%7Bk%7D%5E%7B%5Cprime%7D%20%5Cright%7C%20%5Chat%7BV%7D%20%5Cleft%7C%20%5Cvec%7Bk%7D%20%5Cright%3E%20=%20%5Cint%20dx%20e%5E%7B-i%20%5Cvec%7Bk%7D%5E%7B%5Cprime%7D%20%5Ccdot%20%5Cvec%7Bx%7D%7D%20V(%5Cvec%7Bx%7D)%20e%5E%7Bi%20%5Cvec%7Bk%7D%20%5Ccdot%20%5Cvec%7Bx%7D%7D"> are just Fourier components <img src="https://latex.codecogs.com/png.latex?V(%5Cvec%7Bk%7D%5E%7B%5Cprime%7D%20-%20%5Cvec%7Bk%7D)%20=%20V_%7B%5Cvec%7Bk%7D%5E%7B%5Cprime%7D%20-%20%5Cvec%7Bk%7D%7D">, which are non-zero only when <img src="https://latex.codecogs.com/png.latex?%5Cvec%7Bk%7D%5E%7B%5Cprime%7D%20-%20%5Cvec%7Bk%7D%20%5Cin%20%5Cleft%5C%7B%20%5Cvec%7BG%7D_n%20%5Cright%5C%7D">, so I can rewrite the above more compactly:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cvarepsilon_%7B%5Cvec%7Bk%7D%7D%20=%20%5Cvarepsilon%20%5E0%20_%7B%5Cvec%7Bk%7D%7D%20+%20V_0%20+%20%5Csum_%7B%5Cleft%5C%7B%20%5Cvec%7BG%7D_n%20%5Cright%5C%7D%7D%20%5Cfrac%7B%5Cleft%7C%20V_%7B%5Cvec%7BG%7D_n%7D%20%5Cright%7C%5E2%7D%7B%5Cvarepsilon%20%5E0%20_%7B%5Cvec%7Bk%7D%7D%20-%20%5Cvarepsilon%20%5E0%20_%7B%5Cvec%7Bk%7D%20+%20%5Cvec%7BG%7D_n%7D%7D.%0A"></p>
 <p>The first thing to notice is that the first-order perturbation leads to just a correction by a constant term <img src="https://latex.codecogs.com/png.latex?V_0"> that we can, for now, set to zero (it doesn’t change the bands). Relevant corrections happen in the second order, where we can see that they are inversely proportional to the energy difference between the bands at a given k-value. If you look at the empty lattice plots, you can see that the energy difference is usually small. The exceptions are Brillouin zone edges, where the plane wave states are degenerate with their counterparts from higher bands. As the wiki article tells us, the path forward in the case of degenerate perturbation theory is to find the new eigenstates and eigenenergies, which amounts to finding eigenvalues of the Hamiltonian with matrix elements:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%3C%20%5Cvec%7BG%7D_m%20%5Cright%7C%20H(%5Cvec%7Bk%7D)%20%5Cleft%7C%20%5Cvec%7BG%7D_n%20%5Cright%3E%20=%20%5Cvarepsilon%5E0%20_%7B%5Cvec%7Bk%7D%20+%20%5Cvec%7BG%7D_n%7D%20%5Cdelta_%7Bnm%7D%20+%20V_%7B%5Cvec%7BG%7D_m%20-%20%5Cvec%7BG%7D_n%7D.%0A"></p>
 <p>This Hamiltonian corresponds to what is known as the Nearly free electron model and it’s diagonal in a basis that’s formed by a set of linear combinations of plane waves, the Bloch functions. In principle, the potential matrix elements should be Fourier components of the real potential that an electron feels around the atoms of the unit cell (the Z/r electrostatic potential). Expansion of potential like that tends to be computationally inefficient if we’re interested only in properties of select bands or k-points. Instead, one can come up with a similar potential that is better behaved and can be represented only by a small number of Fourier components. This is called the pseudopotential method and, depending on how the potential matrix elements are determined, can be either empirical (when a few free parameters are fitted to experimental probes of the band structure like <a href="https://en.wikipedia.org/wiki/Photoemission_spectroscopy">photoemisson</a> or <a href="https://en.wikipedia.org/wiki/De_Haas–Van_Alphen_effect">De Haas-Van Alphen effect</a>) or ab-initio (if you, e.g., extrapolate from first-principles calculations of a single atom).</p>
-<p>It works nicely for some materials, usually simple conductors (it takes <a href="https://doi.org/10.1103/PhysRev.118.1182">only two coefficients</a> <img src="https://latex.codecogs.com/png.latex?V_%7B%5B111%5D%7D"> and <img src="https://latex.codecogs.com/png.latex?V_%7B%5B200%5D%7D"> to get good results for aluminum), but the method is not universal in practice. It fails spectacularly in insulators, where the localized core states are important: A typical core s-state of an atom with an atomic number <img src="https://latex.codecogs.com/png.latex?Z"> has a radius of approximately <img src="https://latex.codecogs.com/png.latex?a_0%20/%20Z">, and to represent it nicely in plane waves, we have to use k-values with magnitude up to <img src="https://latex.codecogs.com/png.latex?k_%7Bmax%7D%20=%20%5Cfrac%7B2%5Cpi%20Z%7D%7Ba_0%7D">. The number of reciprocal lattice vectors <img src="https://latex.codecogs.com/png.latex?n"> inside this volume can be estimated by <img src="https://latex.codecogs.com/png.latex?%5Cfrac%7B4%5Cpi%7D%7B3%7Dk_%7Bmax%7D%5E3%20=%20%5Cfrac%7B(2%5Cpi)%5E3n%7D%7BV%7D">, from which we see that the number is proportional to the third power of the product of atomic number and reduced lattice constant <img src="https://latex.codecogs.com/png.latex?n%20%5Capprox%20Z%5E3%20(a/a_0)%5E3">. So in most materials, we would end up diagonalizing a roughly <img src="https://latex.codecogs.com/png.latex?10%5E6%20%5Ctimes%2010%5E6"> element matrix (not to mention that the electrostatic potential near the atomic core is anything but weak, which brings into question whether the perturbation approach is even valid).</p>
+<p>It works nicely for some materials, usually simple conductors<sup>4</sup>, but the method is not universal in practice. It fails spectacularly in insulators, where the localized core states are important: A typical core s-state of an atom with an atomic number <img src="https://latex.codecogs.com/png.latex?Z"> has a radius of approximately <img src="https://latex.codecogs.com/png.latex?a_0%20/%20Z">, and to represent it nicely in plane waves, we have to use k-values with magnitude up to <img src="https://latex.codecogs.com/png.latex?k_%7Bmax%7D%20=%20%5Cfrac%7B2%5Cpi%20Z%7D%7Ba_0%7D">. The number of reciprocal lattice vectors <img src="https://latex.codecogs.com/png.latex?n"> inside this volume can be estimated by <img src="https://latex.codecogs.com/png.latex?%5Cfrac%7B4%5Cpi%7D%7B3%7Dk_%7Bmax%7D%5E3%20=%20%5Cfrac%7B(2%5Cpi)%5E3n%7D%7BV%7D">, from which we see that the number is proportional to the third power of the product of atomic number and reduced lattice constant <img src="https://latex.codecogs.com/png.latex?n%20%5Capprox%20Z%5E3%20(a/a_0)%5E3">. So in most materials, we would end up diagonalizing a roughly <img src="https://latex.codecogs.com/png.latex?10%5E6%20%5Ctimes%2010%5E6"> element matrix (not to mention that the electrostatic potential near the atomic core is anything but weak, which brings into question whether the perturbation approach is even valid).</p>
 <p>That, however, shouldn’t stop us from implementing the method and using it. We just need to be aware of the limitations. And the implementation is really simple:</p>
-<div class="cell" data-execution_count="26">
+<div class="cell" data-execution_count="27">
 <div class="sourceCode cell-code" id="cb29" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb29-1"><span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">nfH</span>(k, n<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Integer</span>, V<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Function</span>, crystal<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Crystal</span>)</span>
 <span id="cb29-2">    G <span class="op" style="color: #5E5E5E;">=</span> crystal.lattice.G</span>
 <span id="cb29-3">    <span class="cn" style="color: #8f5902;">e</span> <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">sort</span>(<span class="bu" style="color: null;">Iterators</span>.<span class="fu" style="color: #4758AB;">product</span>(<span class="fu" style="color: #4758AB;">fill</span>(<span class="op" style="color: #5E5E5E;">-</span>n<span class="op" style="color: #5E5E5E;">:</span>n,<span class="fu" style="color: #4758AB;">length</span>(k))<span class="op" style="color: #5E5E5E;">...</span>) <span class="op" style="color: #5E5E5E;">|&gt;</span> collect <span class="op" style="color: #5E5E5E;">|&gt;</span> vec, by<span class="op" style="color: #5E5E5E;">=</span>norm) <span class="op" style="color: #5E5E5E;">|&gt;</span> collect</span>
@@ -508,7 +599,7 @@
 </div>
 <p>I added two methods: One mirrors the empty lattice but includes the function <img src="https://latex.codecogs.com/png.latex?V(%5Cvec%7Bk%7D)">. Another that requires you to explicitly provide a set of <img src="https://latex.codecogs.com/png.latex?%5Cvec%7BG%7D_n">s of interest and associated matrix representation of <img src="https://latex.codecogs.com/png.latex?V">.</p>
 <p>We should start with the 1D model:</p>
-<div class="cell" data-execution_count="27">
+<div class="cell" data-execution_count="28">
 <div class="sourceCode cell-code" id="cb30" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb30-1">V1d <span class="op" style="color: #5E5E5E;">=</span> [<span class="fl" style="color: #AD0000;">0</span> <span class="fl" style="color: #AD0000;">1</span> <span class="fl" style="color: #AD0000;">1</span>; </span>
 <span id="cb30-2">       <span class="fl" style="color: #AD0000;">1</span> <span class="fl" style="color: #AD0000;">0</span> <span class="fl" style="color: #AD0000;">1</span>;</span>
 <span id="cb30-3">       <span class="fl" style="color: #AD0000;">1</span> <span class="fl" style="color: #AD0000;">1</span> <span class="fl" style="color: #AD0000;">0</span>]</span>
@@ -516,7 +607,7 @@
 <span id="cb30-5"></span>
 <span id="cb30-6">nf1Des <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">nfH1D</span>.(kpath1D) <span class="op" style="color: #5E5E5E;">.|&gt;</span> eigvals;</span></code></pre></div>
 </div>
-<div class="cell" data-execution_count="28">
+<div class="cell" data-execution_count="29">
 <div class="sourceCode cell-code" id="cb31" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb31-1">fig_1D_nf <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Figure</span>()</span>
 <span id="cb31-2">ax_1D_nf <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Axis</span>(fig_1D_nf)</span>
 <span id="cb31-3"></span>
@@ -536,25 +627,25 @@
 <span id="cb31-17">fig_1D_nf[<span class="fl" style="color: #AD0000;">1</span>,<span class="fl" style="color: #AD0000;">1</span>] <span class="op" style="color: #5E5E5E;">=</span> ax_1D_nf</span>
 <span id="cb31-18"></span>
 <span id="cb31-19"><span class="fu" style="color: #4758AB;">current_figure</span>()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="28">
+<div class="cell-output cell-output-display" data-execution_count="29">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-29-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>It’s finally becoming clear why it’s called a <em>band</em> structure. The presence of nonzero matrix elements in <img src="https://latex.codecogs.com/png.latex?V"> modifies the dispersion of a free electron (grey curve) and lifts the degeneracy at band crossings, just as you would expect from the perturbation formula above. This creates energy intervals of allowable energy bands (you can see three of them here) separated by regions on the energy axis where there are no eigenvalues (band gaps).</p>
 <p>Let’s now get back to aluminum. I could go the route of constructing the matrix with coefficients as necessary to fit results, but there’s a more fun approach. Because it’s a simple metal, there’s a good chance that the conduction electrons can be modeled as an electron gas, which will screen the atomic core potential through Thomas-Fermi screening that we’ve encountered before. The screened potential has a form <img src="https://latex.codecogs.com/png.latex?%5Cfrac%7BQ%7D%7Br%7De%5E%7B-%5Cvec%7Bq%7D%5Ccdot%5Cvec%7Br%7D%7D">, which has Fourier components proportional to <img src="https://latex.codecogs.com/png.latex?%5Cfrac%7B4%5Cpi%20Q%7D%7Bk%5E2%20+%20q%5E2%7D">:</p>
-<div class="cell" data-execution_count="29">
+<div class="cell" data-execution_count="30">
 <div class="sourceCode cell-code" id="cb32" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb32-1"><span class="fu" style="color: #4758AB;">V</span>(g, Q, q) <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">ifelse</span>(<span class="fu" style="color: #4758AB;">norm</span>(g) <span class="op" style="color: #5E5E5E;">≈</span> <span class="fl" style="color: #AD0000;">0</span>, <span class="fl" style="color: #AD0000;">0</span>, <span class="fl" style="color: #AD0000;">4</span>π <span class="op" style="color: #5E5E5E;">*</span> Q<span class="op" style="color: #5E5E5E;">/</span>(<span class="fu" style="color: #4758AB;">norm</span>(g)<span class="op" style="color: #5E5E5E;">^</span><span class="fl" style="color: #AD0000;">2</span> <span class="op" style="color: #5E5E5E;">.+</span> q<span class="op" style="color: #5E5E5E;">^</span><span class="fl" style="color: #AD0000;">2</span>));</span></code></pre></div>
 </div>
 <p>Where I set the <img src="https://latex.codecogs.com/png.latex?V_0"> term to zero. We can now plug in the effective nuclear charge of aluminum (<img src="https://latex.codecogs.com/png.latex?Q%20=%203">) and make an educated guess on what’s the screening length <img src="https://latex.codecogs.com/png.latex?1/q">. I could go and look up the electronic number density to calculate the proper screening length, but we’re just looking for a rough estimation (I’m neglecting a lot of things already), so let’s say that it get’s screened roughly on the order of lattice constant (<img src="https://latex.codecogs.com/png.latex?%5Cleft%7C%20q%20%5Cright%7C%20=%203">, so that the numbers fit):</p>
-<div class="cell" data-execution_count="30">
+<div class="cell" data-execution_count="31">
 <div class="sourceCode cell-code" id="cb33" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb33-1"><span class="fu" style="color: #4758AB;">AlV</span>(k) <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">V</span>(k, <span class="fl" style="color: #AD0000;">3</span>, <span class="fl" style="color: #AD0000;">3</span>)</span>
 <span id="cb33-2"></span>
 <span id="cb33-3"><span class="fu" style="color: #4758AB;">AlH</span>(k) <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">nfH</span>(k, <span class="fl" style="color: #AD0000;">2</span>, AlV, Al);</span></code></pre></div>
 </div>
-<div class="cell" data-execution_count="31">
+<div class="cell" data-execution_count="32">
 <div class="sourceCode cell-code" id="cb34" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb34-1">Ales <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">AlH</span>.(Alks.path) <span class="op" style="color: #5E5E5E;">.|&gt;</span> eigvals;</span></code></pre></div>
 </div>
-<div class="cell" data-execution_count="32">
+<div class="cell" data-execution_count="33">
 <div class="sourceCode cell-code" id="cb35" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb35-1">fig_Al <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Figure</span>()</span>
 <span id="cb35-2">ax_Al <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Axis</span>(fig_Al, title<span class="op" style="color: #5E5E5E;">=</span><span class="st" style="color: #20794D;">"Aluminum"</span>)</span>
 <span id="cb35-3">ax_Al.xticks <span class="op" style="color: #5E5E5E;">=</span> ([p.second for p <span class="op" style="color: #5E5E5E;">∈</span> Alks.ppoints], </span>
@@ -571,14 +662,14 @@
 <span id="cb35-14"></span>
 <span id="cb35-15">fig_Al[<span class="fl" style="color: #AD0000;">1</span>,<span class="fl" style="color: #AD0000;">1</span>] <span class="op" style="color: #5E5E5E;">=</span> ax_Al</span>
 <span id="cb35-16"><span class="fu" style="color: #4758AB;">current_figure</span>()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="32">
+<div class="cell-output cell-output-display" data-execution_count="33">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-33-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>Not bad, all things considered. I wouldn’t use it to determine chemistry or precise physical properties,but for a simple model with just one free parameter, it does really well (it’s almost as good as state-of-the-art calculations in the 1950s).</p>
 </section>
-<section id="tightly-bound" class="level3">
-<h3 class="anchored" data-anchor-id="tightly-bound">Tightly bound</h3>
+<section id="sec-cmpm3-tb" class="level3">
+<h3 class="anchored" data-anchor-id="sec-cmpm3-tb">Tightly bound</h3>
 <p>Assuming that the atomic potentials are weak to the point of being almost non-existent is nice, but it’s rather restrictive on the type of materials we can handle. To cover the exact opposite case, let’s go to the other end of the Bloch’s theorem spectrum (pun intended), where the atomic potentials are very strong and just barely let the electrons escape.</p>
 <p>To start, we’ll ignore the whole business of crystals and Dr.&nbsp;Bloch, and focus on a toy model for formation of covalent bonds: an ionized hydrogen molecule <img src="https://latex.codecogs.com/png.latex?H_2%20%5E+">. It’s a very simple model, with a single electron flying around two protons at sites <img src="https://latex.codecogs.com/png.latex?r_1"> and <img src="https://latex.codecogs.com/png.latex?r_2">, with the Hamiltonian:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Chat%7BH%7D%20=%20%5Cfrac%7B1%7D%7B2%7D%5Cnabla%5E2%20-%20%5Cfrac%7B1%7D%7Br_1%7D%20-%20%5Cfrac%7B1%7D%7Br_2%7D.%0A"></p>
@@ -601,8 +692,20 @@
 <p>The last expression gives us the full recipe for implementing the tight-binging method. The Hamiltonian consists of a diagonal that contains the on-site energies, one for each contributing orbital, and the off-diagonal hopping terms, which are non-zero only if the orbitals are close enough for the electron to tunnel between them. This way, we can pre-calculate (or pre-measure) the LCAO parameters (usually the tricky part of the solution) and do the momentum dependence on the fly, as that manifests only as a phase shift.</p>
 <p>Teeechnically, the wavefunctions <img src="https://latex.codecogs.com/png.latex?%5Cvarphi_a"> don’t form an orthogonal basis, as in there’s a non-zero overlap between them, or <img src="https://latex.codecogs.com/png.latex?%5Cleft%3C%20%5Cvarphi_a%20%7C%20%5Cvarphi_b%20%5Cright%3E%20%5Cne%20%5Cdelta_%7Bab%7D">. If that’s the case, we shouldn’t be solving just a simple eigenvalue problem of type <img src="https://latex.codecogs.com/png.latex?%5Chat%7BH%7D%20%5Cvarphi%20=%20E%20%5Cvarphi"> but the generalized problem of <img src="https://latex.codecogs.com/png.latex?%5Chat%7BH%7D%20%5Cvarphi%20=%20E%20%5Cmathbf%7BS%7D%20%5Cvarphi">, where <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BS%7D%20=%20S_%7Bab%7D%20=%20%5Cleft%3C%20%5Cvarphi_a%20%7C%20%5Cvarphi_b%20%5Cright%3E"> is the overlap matrix. Most libraries that can do simple eigendecomposition can also do the generalized one and if they don’t, you’re out of luck. Or just don’t calculate the overlaps between sites.</p>
 <p>To implement the tight-binding scheme in code, I’ll make a bunch of helper types. Their purpose is to contain information about the terms <img src="https://latex.codecogs.com/png.latex?%5Cgamma">, <img src="https://latex.codecogs.com/png.latex?%5Cmu">, and <img src="https://latex.codecogs.com/png.latex?S"> and the relevant orbital indices.</p>
-<p><em>An important thing to keep in mind is that the computational orbital indices <code>i</code> and <code>j</code> carry both the position and atom type index. An orbital <img src="https://latex.codecogs.com/png.latex?%5Cphi_a"> at site <img src="https://latex.codecogs.com/png.latex?R_1"> has different computational index <code>i</code> than orbital <img src="https://latex.codecogs.com/png.latex?%5Cphi_a"> at site <img src="https://latex.codecogs.com/png.latex?R_2">, even if the nominal index <img src="https://latex.codecogs.com/png.latex?a"> is the same and they would differ only by the offset index <img src="https://latex.codecogs.com/png.latex?i">.</em></p>
-<div class="cell" data-execution_count="33">
+<div class="callout-warning callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>An important thing to keep in mind is that the computational orbital indices <code>i</code> and <code>j</code> carry both the position and atom type index. An orbital <img src="https://latex.codecogs.com/png.latex?%5Cphi_a"> at site <img src="https://latex.codecogs.com/png.latex?R_1"> has different computational index <code>i</code> than orbital <img src="https://latex.codecogs.com/png.latex?%5Cphi_a"> at site <img src="https://latex.codecogs.com/png.latex?R_2">, even if the nominal index <img src="https://latex.codecogs.com/png.latex?a"> is the same and they would differ only by the offset index <img src="https://latex.codecogs.com/png.latex?i">.</p>
+</div>
+</div>
+<div class="cell" data-execution_count="34">
 <div class="sourceCode cell-code" id="cb36" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb36-1"><span class="kw" style="color: #003B4F;">struct</span> Hop</span>
 <span id="cb36-2">    γ<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Number</span></span>
 <span id="cb36-3">    i<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Int</span></span>
@@ -610,13 +713,13 @@
 <span id="cb36-5">    offset<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Union{&lt;:Real, Array{&lt;:Real}}</span></span>
 <span id="cb36-6"><span class="kw" style="color: #003B4F;">end</span></span></code></pre></div>
 </div>
-<div class="cell" data-execution_count="34">
+<div class="cell" data-execution_count="35">
 <div class="sourceCode cell-code" id="cb37" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb37-1"><span class="kw" style="color: #003B4F;">struct</span> Onsite</span>
 <span id="cb37-2">    μ<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Number</span></span>
 <span id="cb37-3">    ii<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Int</span></span>
 <span id="cb37-4"><span class="kw" style="color: #003B4F;">end</span></span></code></pre></div>
 </div>
-<div class="cell" data-execution_count="35">
+<div class="cell" data-execution_count="36">
 <div class="sourceCode cell-code" id="cb38" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb38-1"><span class="kw" style="color: #003B4F;">struct</span> Overlap</span>
 <span id="cb38-2">    S<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Number</span></span>
 <span id="cb38-3">    i<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Int</span></span>
@@ -625,7 +728,7 @@
 <span id="cb38-6"><span class="kw" style="color: #003B4F;">end</span></span></code></pre></div>
 </div>
 <p>And I’ll package those in a mutable type that will hold all of it in a relatively non-structured manner.</p>
-<div class="cell" data-execution_count="36">
+<div class="cell" data-execution_count="37">
 <div class="sourceCode cell-code" id="cb39" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb39-1"><span class="kw" style="color: #003B4F;">mutable struct</span> Hoppings</span>
 <span id="cb39-2">    c<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Crystal</span></span>
 <span id="cb39-3">    γs<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Array{Hop}</span></span>
@@ -639,7 +742,7 @@
 <span id="cb39-11"><span class="kw" style="color: #003B4F;">end</span></span></code></pre></div>
 </div>
 <p>Now I need functions to add all of the parameters where necessary.</p>
-<div class="cell" data-execution_count="37">
+<div class="cell" data-execution_count="38">
 <div class="sourceCode cell-code" id="cb40" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb40-1"><span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">addhop!</span>(hops, γ, i, j, δ)</span>
 <span id="cb40-2">    γ <span class="op" style="color: #5E5E5E;">=</span> Unitful.<span class="fu" style="color: #4758AB;">NoUnits</span>(γ <span class="op" style="color: #5E5E5E;">/</span> Ha)</span>
 <span id="cb40-3">    offset <span class="op" style="color: #5E5E5E;">=</span> δ</span>
@@ -648,7 +751,7 @@
 <span id="cb40-6">    hops</span>
 <span id="cb40-7"><span class="kw" style="color: #003B4F;">end</span>;</span></code></pre></div>
 </div>
-<div class="cell" data-execution_count="38">
+<div class="cell" data-execution_count="39">
 <div class="sourceCode cell-code" id="cb41" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb41-1"><span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">addonsite!</span>(hops, μ, ii)</span>
 <span id="cb41-2">    μ <span class="op" style="color: #5E5E5E;">=</span> Unitful.<span class="fu" style="color: #4758AB;">NoUnits</span>(μ <span class="op" style="color: #5E5E5E;">/</span> Ha)</span>
 <span id="cb41-3">    <span class="fu" style="color: #4758AB;">push!</span>(hops.μs, <span class="fu" style="color: #4758AB;">Onsite</span>(μ, ii))</span>
@@ -656,7 +759,7 @@
 <span id="cb41-5">    hops</span>
 <span id="cb41-6"><span class="kw" style="color: #003B4F;">end</span>;</span></code></pre></div>
 </div>
-<div class="cell" data-execution_count="39">
+<div class="cell" data-execution_count="40">
 <div class="sourceCode cell-code" id="cb42" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb42-1"><span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">addoverlap!</span>(hops, S, i, j, δ)</span>
 <span id="cb42-2">    offset <span class="op" style="color: #5E5E5E;">=</span> δ</span>
 <span id="cb42-3">    <span class="fu" style="color: #4758AB;">push!</span>(hops.Ss, <span class="fu" style="color: #4758AB;">Overlap</span>(S, i, j, offset))</span>
@@ -664,9 +767,24 @@
 <span id="cb42-5">    hops</span>
 <span id="cb42-6"><span class="kw" style="color: #003B4F;">end</span>;</span></code></pre></div>
 </div>
-<p><em>only deviation from the above notation is that <img src="https://latex.codecogs.com/png.latex?%5Cdelta%20R_i"> became just <code>δ</code> to minimize typing.</em></p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Note
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>only deviation from the above notation is that <img src="https://latex.codecogs.com/png.latex?%5Cdelta%20R_i"> became just <code>δ</code> to minimize typing.</p>
+</div>
+</div>
+</div>
 <p>Finally, we need a function that constructs the matrix representation of the tight-binding Hamiltonian out of the <code>Hoppings</code>:</p>
-<div class="cell" data-execution_count="40">
+<div class="cell" data-execution_count="41">
 <div class="sourceCode cell-code" id="cb43" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb43-1"><span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">tbH</span>(k, hops<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Hoppings</span>)</span>
 <span id="cb43-2">    n <span class="op" style="color: #5E5E5E;">=</span> hops.maxij</span>
 <span id="cb43-3">    ham <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">zeros</span>(<span class="dt" style="color: #AD0000;">Complex</span>,n,n)</span>
@@ -698,8 +816,8 @@
 </div>
 <p>Everything here is in reduced coordinates. Since <img src="https://latex.codecogs.com/png.latex?%5Cvec%7BG%7D_m%20%5Ccdot%20%5Cvec%7BR%7D_n%20=%202%5Cpi">, I can do that and still recover correct results, as long as I multiply products <img src="https://latex.codecogs.com/png.latex?%5Cvec%7Bk%7D%20%5Ccdot%20%5Cvec%7Br%7D"> by a factor of <img src="https://latex.codecogs.com/png.latex?2%5Cpi">.</p>
 <p>To show how it works, let’s try a concrete example: Graphene. At first, with just the two bands that give rise to the famous photon-like dispersion.</p>
-<p>I could figure out the hop directions by myself, but this can become a mess in bigger crystals (even in the case of “real” graphene we’ll do in a moment). So I make a helper function <code>unique_neighbours</code> that returns a list of nearest neighbors that’s pruned from all conjugates (hops in the opposite direction). The pruning is important because the TB Hamiltonian, being a Hamiltonian, should be hermitian (i.e.&nbsp;$ H_{ij} = H^{}_{ji} $). This is enforced during the matrix construction in <code>tbH</code>, where I generate hops in both directions at the same time just from one <code>Hop</code>.</p>
-<div class="cell" data-execution_count="41">
+<p>I could figure out the hop directions by myself, but this can become a mess in bigger crystals (even in the case of “real” graphene we’ll do in a moment). So I make a helper function <code>unique_neighbours</code> that returns a list of nearest neighbors that’s pruned from all conjugates (hops in the opposite direction). The pruning is important because the TB Hamiltonian, being a Hamiltonian, should be hermitian (i.e.&nbsp;<img src="https://latex.codecogs.com/png.latex?H_%7Bij%7D%20=%20H%5E%7B%5Cdagger%7D_%7Bji%7D">). This is enforced during the matrix construction in <code>tbH</code>, where I generate hops in both directions at the same time just from one <code>Hop</code>.</p>
+<div class="cell" data-execution_count="42">
 <div class="sourceCode cell-code" id="cb44" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb44-1"><span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">dedup_floats</span>(itr)</span>
 <span id="cb44-2">    out <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Vector</span><span class="dt" style="color: #AD0000;">{eltype(itr)}</span>()</span>
 <span id="cb44-3">    <span class="fu" style="color: #4758AB;">push!</span>(out, itr[<span class="fl" style="color: #AD0000;">1</span>])</span>
@@ -742,14 +860,14 @@
 </div>
 <p>With that, we can begin assembling the problem. First, we create an empty hopping list based on the graphene crystal structure and then we add all the hopping amplitudes between the lattice sites. If you were to write out the list of hoppings generated by the <code>unique_neighbours</code>, you’d see that there are 3 hops: one within the same unit cell (the second inequivalent site) and two from the neighboring cells.</p>
 <p>We’ll scale the energy to the value of hopping amplitude <img src="https://latex.codecogs.com/png.latex?%5Cgamma%20=%20-1"> (done by giving it energy of -1 Ha, so that everything is a multiple of unity), the minus sign is so that the “correct” band has the lower energy, even if you won’t be able to tell in this case. Because sites 1 and 2 are both just carbon, we keep <img src="https://latex.codecogs.com/png.latex?%5Cmu_%7B1,2%7D"> as zero. Giving them a non-zero value would mean just adding the same number on the diagonal, which would manifest just as a rigid shift of the whole band structure along the energy axis (not important at the moment).</p>
-<div class="cell" data-execution_count="42">
+<div class="cell" data-execution_count="43">
 <div class="sourceCode cell-code" id="cb45" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb45-1">grhops <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Hoppings</span>(graphene)</span>
 <span id="cb45-2"><span class="cf" style="color: #003B4F;">for</span> hop <span class="op" style="color: #5E5E5E;">∈</span> <span class="fu" style="color: #4758AB;">unique_neighbors</span>(graphene)</span>
 <span id="cb45-3">    <span class="fu" style="color: #4758AB;">addhop!</span>(grhops, <span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">1.0</span>Ha, hop.i, hop.j, hop.δ)</span>
 <span id="cb45-4"><span class="cf" style="color: #003B4F;">end</span></span></code></pre></div>
 </div>
 <p>From here on, it’s the usual story: Define the trajectory in k-space and get calculatin’. The k-path will contain the customary <img src="https://latex.codecogs.com/png.latex?%5CGamma">-point, the linear dispersion is around the <img src="https://latex.codecogs.com/png.latex?K">-point (the point where the two sides of the Brillouin zone touch), and I also throw in a <img src="https://latex.codecogs.com/png.latex?M">-point (center of the Brillouin zone side) for good measure:</p>
-<div class="cell" data-execution_count="43">
+<div class="cell" data-execution_count="44">
 <div class="sourceCode cell-code" id="cb46" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb46-1">grks <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">kpath</span>([</span>
 <span id="cb46-2">        <span class="op" style="color: #5E5E5E;">:</span>Γ <span class="op" style="color: #5E5E5E;">=&gt;</span> [<span class="fl" style="color: #AD0000;">0</span>,<span class="fl" style="color: #AD0000;">0</span>],</span>
 <span id="cb46-3">        <span class="op" style="color: #5E5E5E;">:</span>M <span class="op" style="color: #5E5E5E;">=&gt;</span> [<span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span><span class="fl" style="color: #AD0000;">2</span>,<span class="fl" style="color: #AD0000;">0</span>],</span>
@@ -758,12 +876,12 @@
 <span id="cb46-6">        ], <span class="fl" style="color: #AD0000;">0.01</span>);</span></code></pre></div>
 </div>
 <p>Now we just construct the hamiltonian and calculate eigenvalues along the k-space trajectory:</p>
-<div class="cell" data-execution_count="44">
+<div class="cell" data-execution_count="45">
 <div class="sourceCode cell-code" id="cb47" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb47-1"><span class="fu" style="color: #4758AB;">grtbH</span>(k) <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">tbH</span>(k, grhops)</span>
 <span id="cb47-2">gres <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">grtbH</span>.(grks.path) <span class="op" style="color: #5E5E5E;">.|&gt;</span> first <span class="op" style="color: #5E5E5E;">.|&gt;</span> eigvals;</span></code></pre></div>
 </div>
 <p>And plot:</p>
-<div class="cell" data-execution_count="45">
+<div class="cell" data-execution_count="46">
 <div class="sourceCode cell-code" id="cb48" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb48-1">fig_gr <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Figure</span>()</span>
 <span id="cb48-2">ax_gr <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Axis</span>(fig_gr)</span>
 <span id="cb48-3">ax_gr.xticks <span class="op" style="color: #5E5E5E;">=</span> ([p.second for p <span class="op" style="color: #5E5E5E;">∈</span> grks.ppoints], </span>
@@ -779,18 +897,18 @@
 <span id="cb48-13"></span>
 <span id="cb48-14">fig_gr[<span class="fl" style="color: #AD0000;">1</span>,<span class="fl" style="color: #AD0000;">1</span>] <span class="op" style="color: #5E5E5E;">=</span> ax_gr</span>
 <span id="cb48-15"><span class="fu" style="color: #4758AB;">current_figure</span>()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="45">
+<div class="cell-output cell-output-display" data-execution_count="46">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-46-output-1.png" class="img-fluid"></p>
 </div>
 </div>
-<p>Because this tight-binding Hamiltonian has the form <img src="https://latex.codecogs.com/png.latex?H%20=%5Cbegin%7Bbmatrix%7D%200%20&amp;%20%5CGamma(k)%20%5C%5C%20%5CGamma%5E*(k)%20&amp;%200%20%5C%5C%20%5Cend%7Bbmatrix%7D">, we can analytically solve for the energies and would find out that <img src="https://latex.codecogs.com/png.latex?E_%7B%5Cpm%7D%20=%20%5Cpm%20%7C%5CGamma(k)%7C">. At the <img src="https://latex.codecogs.com/png.latex?K">-points, the elements <img src="https://latex.codecogs.com/png.latex?%5CGamma(K)%20=%200">, and the energy of both bands goes to zero. At distance close to the <img src="https://latex.codecogs.com/png.latex?K">-point, you can do a Taylor expansion to the first order, and you’d end up with a <a href="http://ahrenkiel.sdsmt.edu/courses/Fall2019/NANO702/lectures/13_DiracEquation_Graphene/Nano%20702%20lecX%20112117.pdf">somewhat of a Dirac equation</a> and a dispersion relation <img src="https://latex.codecogs.com/png.latex?E(k%20%5Capprox%20K)%20=%20%5CGamma(k)%20%5Cpropto%20k"> characteristic for massless particles, where <img src="https://latex.codecogs.com/png.latex?E(k)%20=%20%5Chbar%20c%20k"> (<img src="https://latex.codecogs.com/png.latex?c"> in the graphene case is, of course, not the speed of light - if you really wanted to interpret it as such, it’s about <a href="https://www.nature.com/articles/nature04233">100 times slower</a>). I guess this is why the band structure around the <img src="https://latex.codecogs.com/png.latex?K">-point is called a Dirac cone and why people say that the electrons at these momenta are photon-like.</p>
+<p>Because this tight-binding Hamiltonian has the form <img src="https://latex.codecogs.com/png.latex?H%20=%5Cbegin%7Bbmatrix%7D%200%20&amp;%20%5CGamma(k)%20%5C%5C%20%5CGamma%5E*(k)%20&amp;%200%20%5C%5C%20%5Cend%7Bbmatrix%7D">, we can analytically solve for the energies and would find out that <img src="https://latex.codecogs.com/png.latex?E_%7B%5Cpm%7D%20=%20%5Cpm%20%7C%5CGamma(k)%7C">. At the <img src="https://latex.codecogs.com/png.latex?K">-points, the elements <img src="https://latex.codecogs.com/png.latex?%5CGamma(K)%20=%200">, and the energy of both bands goes to zero. At distance close to the <img src="https://latex.codecogs.com/png.latex?K">-point, you can do a Taylor expansion to the first order, and you’d end up with a <a href="http://ahrenkiel.sdsmt.edu/courses/Fall2019/NANO702/lectures/13_DiracEquation_Graphene/Nano%20702%20lecX%20112117.pdf">somewhat of a Dirac equation</a> and a dispersion relation <img src="https://latex.codecogs.com/png.latex?E(k%20%5Capprox%20K)%20=%20%5CGamma(k)%20%5Cpropto%20k"> characteristic for massless particles, where <img src="https://latex.codecogs.com/png.latex?E(k)%20=%20%5Chbar%20c%20k">.<sup>5</sup> I guess this is why the band structure around the <img src="https://latex.codecogs.com/png.latex?K">-point is called a Dirac cone and why people say that the electrons at these momenta are photon-like.</p>
 <p>If we were to do this calculation with hexagonal Boron Nitride, we would have to add onsite energies that are different for the two different lattice sites. This presence of non-trivial diagonal terms in the Hamiltonian would lead to a non-zero separation of energies when <img src="https://latex.codecogs.com/png.latex?%5CGamma(k)%20=%200">, which opens a band gap and curves the bands.</p>
 </section>
-<section id="digging-deeper" class="level2">
-<h2 class="anchored" data-anchor-id="digging-deeper">Digging deeper</h2>
+<section id="sec-cmpm3-tbGR" class="level2">
+<h2 class="anchored" data-anchor-id="sec-cmpm3-tbGR">Digging deeper</h2>
 <p>The above plot looks good but the physical interpretation is lacking. The band diagram looks like it does because I claim that there are only two equivalent orbitals participating, which is often simply stated in textbooks and might seem suspect based on the fact that carbon has more than one valence electron. While I’m all for dictating how nature should do things, there’s a certain beauty to making predictions that work not because they do, but because they should. To show why graphene should have these bands, let’s drop the empirical approach and try to do a first principles-ish calculation by doing tight-binding with real carbon atomic orbitals.</p>
 <p>Let’s first look at the orbital wavefunctions. Central potential problems, like those of hydrogen-like atoms, are usually solved in spherical coordinates, so I’ll quickly throw together some helper functions to convert cartesian coords:</p>
-<div class="cell" data-execution_count="46">
+<div class="cell" data-execution_count="47">
 <div class="sourceCode cell-code" id="cb49" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb49-1"><span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">to_polar</span>(r)</span>
 <span id="cb49-2">    x,y,z <span class="op" style="color: #5E5E5E;">=</span> r</span>
 <span id="cb49-3">    r <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">norm</span>(r)</span>
@@ -806,13 +924,13 @@
 <span id="cb49-13"><span class="kw" style="color: #003B4F;">end</span>;</span></code></pre></div>
 </div>
 <p>The general form for the eigenfunctions is a product of <a href="https://en.wikipedia.org/wiki/Laguerre_polynomials#Generalized_Laguerre_polynomials">Laguerre polynomials</a> and <a href="https://en.wikipedia.org/wiki/Spherical_harmonics">spherical harmonics</a> but because we’re limiting ourselves just to the <img src="https://latex.codecogs.com/png.latex?n%20=%202"> states, I can write down the specific form in our atomic units: <img src="https://latex.codecogs.com/png.latex?%5Cphi(%5Cvec%7Br%7D)_%7B2s%7D%20=%20%5Cfrac%7B1%7D%7B4%5Csqrt%7B2%5Cpi%7D%7D%20(2%20-%20r)%20e%5E%7B-r/2%7D">, <img src="https://latex.codecogs.com/png.latex?%5Cphi(%5Cvec%7Br%7D)_%7B2p,m_l=0%7D%20=%20%5Cfrac%7B1%7D%7B4%5Csqrt%7B2%5Cpi%7D%7D%20r%20e%5E%7B-r/2%7D%20%5Ccos%7B(%5Ctheta)%7D"> and <img src="https://latex.codecogs.com/png.latex?%5Cphi(%5Cvec%7Br%7D)_%7B2p,m_l=%5Cpm%201%7D%20=%20%5Cfrac%7B%5Cmp%201%7D%7B8%5Csqrt%7B%5Cpi%7D%7D%20r%20e%5E%7B-r/2%7D%20%5Csin(%5Ctheta)%20e%5E%7B%5Cpm%20i%20%5Cvarphi%7D">, where I separated the cases of the magnetic quantum number <img src="https://latex.codecogs.com/png.latex?m_l=0"> and <img src="https://latex.codecogs.com/png.latex?m_l=%5Cpm1"> (the choice for identification of the latter is arbitrary, you just need the two <img src="https://latex.codecogs.com/png.latex?m_l=%5Cpm1"> have opposite signs so that they’re orthogonal).</p>
-<div class="cell" data-execution_count="47">
+<div class="cell" data-execution_count="48">
 <div class="sourceCode cell-code" id="cb50" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb50-1"><span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">ψ2s</span>(r)</span>
 <span id="cb50-2">    r,θ,<span class="cn" style="color: #8f5902;">φ</span> <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">to_polar</span>(r)</span>
 <span id="cb50-3">    <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span>(<span class="fl" style="color: #AD0000;">4</span><span class="fu" style="color: #4758AB;">*sqrt</span>(<span class="fl" style="color: #AD0000;">2</span>π)) <span class="op" style="color: #5E5E5E;">*</span> (<span class="fl" style="color: #AD0000;">2</span> <span class="op" style="color: #5E5E5E;">-</span> r) <span class="op" style="color: #5E5E5E;">*</span> <span class="fu" style="color: #4758AB;">exp</span>(<span class="op" style="color: #5E5E5E;">-</span>r<span class="op" style="color: #5E5E5E;">/</span><span class="fl" style="color: #AD0000;">2</span>) <span class="op" style="color: #5E5E5E;">+</span> <span class="fl" style="color: #AD0000;">0im</span></span>
 <span id="cb50-4"><span class="kw" style="color: #003B4F;">end</span>;</span></code></pre></div>
 </div>
-<div class="cell" data-execution_count="48">
+<div class="cell" data-execution_count="49">
 <div class="sourceCode cell-code" id="cb51" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb51-1"><span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">ψ2p</span>(r, ml)</span>
 <span id="cb51-2">    r,θ,<span class="cn" style="color: #8f5902;">φ</span> <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">to_polar</span>(r)</span>
 <span id="cb51-3">    <span class="fu" style="color: #4758AB;">ifelse</span>(ml <span class="op" style="color: #5E5E5E;">==</span> <span class="fl" style="color: #AD0000;">0</span>,</span>
@@ -822,23 +940,23 @@
 <span id="cb51-7"><span class="kw" style="color: #003B4F;">end</span>;</span></code></pre></div>
 </div>
 <p>The <img src="https://latex.codecogs.com/png.latex?m_l%20=%200"> orbital is recognizably the <img src="https://latex.codecogs.com/png.latex?p_z"> orbital you know from textbooks:</p>
-<div class="cell" data-execution_count="49">
+<div class="cell" data-execution_count="50">
 <div class="sourceCode cell-code" id="cb52" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb52-1">foo <span class="op" style="color: #5E5E5E;">=</span> [<span class="fu" style="color: #4758AB;">ψ2p</span>([i,j,k], <span class="fl" style="color: #AD0000;">0</span>) <span class="op" style="color: #5E5E5E;">|&gt;</span> abs2 for i <span class="op" style="color: #5E5E5E;">∈</span> <span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">3</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">0.1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">3</span>, j <span class="op" style="color: #5E5E5E;">∈</span> <span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">3</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">0.1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">3</span>, k <span class="op" style="color: #5E5E5E;">∈</span> <span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">5</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">0.1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">5</span>]</span>
 <span id="cb52-2"><span class="fu" style="color: #4758AB;">contour</span>(foo, levels<span class="op" style="color: #5E5E5E;">=</span><span class="fl" style="color: #AD0000;">1</span>)</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="49">
+<div class="cell-output cell-output-display" data-execution_count="50">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-50-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>The other two might not be what you expect if your knowledge of atomic orbitals comes from chemistry:</p>
-<div class="cell" data-execution_count="50">
+<div class="cell" data-execution_count="51">
 <div class="sourceCode cell-code" id="cb53" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb53-1">foo <span class="op" style="color: #5E5E5E;">=</span> [<span class="fu" style="color: #4758AB;">ψ2p</span>([i,j,k], <span class="fl" style="color: #AD0000;">1</span>) <span class="op" style="color: #5E5E5E;">|&gt;</span> abs2 for i <span class="op" style="color: #5E5E5E;">∈</span> <span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">5</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">0.1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">5</span>, j <span class="op" style="color: #5E5E5E;">∈</span> <span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">5</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">0.1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">5</span>, k <span class="op" style="color: #5E5E5E;">∈</span> <span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">4</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">0.1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">4</span>]</span>
 <span id="cb53-2"><span class="fu" style="color: #4758AB;">contour</span>(foo, levels<span class="op" style="color: #5E5E5E;">=</span><span class="fl" style="color: #AD0000;">1</span>)</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="50">
+<div class="cell-output cell-output-display" data-execution_count="51">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-51-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>That’s not the dumbbell shape that you’re <a href="http://www.chem.ucla.edu/~harding/IGOC/P/p_orbital02.png">usually shown</a>. It is the correct solution to the radial Schroedinger equation, so why are we getting a donut? Well, it’s because of conventions. If the eigenfunctions <img src="https://latex.codecogs.com/png.latex?%5Cleft%7C%20p_%7B-1%7D%20%5Cright%3E,%5Cleft%7C%20p_%7B1%7D%20%5Cright%3E,%5Cleft%7C%20p_%7B0%7D%20%5Cright%3E"> are solutions to the Schroedinger equation (which they are, that’s why they’re eigenfunctions), then so is any of their linear combinations. Because the purely real dumbbell-shaped functions are more convenient when discussing chemical bonds and symmetries of crystals, it is customary to rotate the <img src="https://latex.codecogs.com/png.latex?%5C%7B%5Cleft%7C%20p_%7Bm_l%7D%20%5Cright%3E%20%5C%7D_%7Bm_l=%7B-1,1,0%7D%7D"> basis into a different basis <img src="https://latex.codecogs.com/png.latex?%5C%7B%20%5Cleft%7C%20p_%7Br%7D%20%5Cright%3E%20%5C%7D_%7Br=%7Bx,y,z%7D%7D">, where <img src="https://latex.codecogs.com/png.latex?%5Cleft%7C%20p_%7Bx%7D%20%5Cright%3E"> and <img src="https://latex.codecogs.com/png.latex?%5Cleft%7C%20p_%7By%7D%20%5Cright%3E"> (also known as cubic harmonics) are linear combinations of <img src="https://latex.codecogs.com/png.latex?%5Cleft%7C%20p_%7B-1%7D%20%5Cright%3E"> and <img src="https://latex.codecogs.com/png.latex?%5Cleft%7C%20p_%7B1%7D%20%5Cright%3E">:</p>
-<div class="cell" data-execution_count="51">
+<div class="cell" data-execution_count="52">
 <div class="sourceCode cell-code" id="cb54" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb54-1"><span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">ψ2pz</span>(r)</span>
 <span id="cb54-2">    r,θ,<span class="cn" style="color: #8f5902;">φ</span> <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">to_polar</span>(r)</span>
 <span id="cb54-3">    <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span>(<span class="fl" style="color: #AD0000;">4</span><span class="fu" style="color: #4758AB;">*sqrt</span>(<span class="fl" style="color: #AD0000;">2</span>π)) <span class="op" style="color: #5E5E5E;">*</span> r <span class="op" style="color: #5E5E5E;">*</span> <span class="fu" style="color: #4758AB;">exp</span>(<span class="op" style="color: #5E5E5E;">-</span>r<span class="op" style="color: #5E5E5E;">/</span><span class="fl" style="color: #AD0000;">2</span>) <span class="op" style="color: #5E5E5E;">*</span> <span class="fu" style="color: #4758AB;">cos</span>(θ) <span class="op" style="color: #5E5E5E;">+</span> <span class="fl" style="color: #AD0000;">0im</span></span>
@@ -855,15 +973,15 @@
 <span id="cb54-14"><span class="kw" style="color: #003B4F;">end</span>;</span></code></pre></div>
 </div>
 <p>Now the <img src="https://latex.codecogs.com/png.latex?p_x"> and <img src="https://latex.codecogs.com/png.latex?p_y"> orbitals have the shape you’re used to:</p>
-<div class="cell" data-execution_count="52">
+<div class="cell" data-execution_count="53">
 <div class="sourceCode cell-code" id="cb55" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb55-1">foox <span class="op" style="color: #5E5E5E;">=</span> [<span class="fu" style="color: #4758AB;">ψ2px</span>([i,j,k]) <span class="op" style="color: #5E5E5E;">|&gt;</span> abs2 for i <span class="op" style="color: #5E5E5E;">∈</span> <span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">5</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">0.1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">5</span>, j <span class="op" style="color: #5E5E5E;">∈</span> <span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">3</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">0.1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">3</span>, k <span class="op" style="color: #5E5E5E;">∈</span> <span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">3</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">0.1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">3</span>]</span>
 <span id="cb55-2"><span class="fu" style="color: #4758AB;">contour</span>(foox, levels<span class="op" style="color: #5E5E5E;">=</span><span class="fl" style="color: #AD0000;">1</span>)</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="52">
+<div class="cell-output cell-output-display" data-execution_count="53">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-53-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>When thrown together, they form a nice symmetric structure:</p>
-<div class="cell" data-execution_count="53">
+<div class="cell" data-execution_count="54">
 <div class="sourceCode cell-code" id="cb56" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb56-1">f <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Figure</span>()</span>
 <span id="cb56-2">l <span class="op" style="color: #5E5E5E;">=</span> <span class="fl" style="color: #AD0000;">3.4</span></span>
 <span id="cb56-3">z <span class="op" style="color: #5E5E5E;">=</span> <span class="fl" style="color: #AD0000;">3.4</span></span>
@@ -879,12 +997,12 @@
 <span id="cb56-13"><span class="fu" style="color: #4758AB;">contour!</span>(foos, levels<span class="op" style="color: #5E5E5E;">=</span>[<span class="fl" style="color: #AD0000;">4e-3</span>])</span>
 <span id="cb56-14"><span class="fu" style="color: #4758AB;">hidedecorations!</span>(hybp, label<span class="op" style="color: #5E5E5E;">=</span><span class="cn" style="color: #8f5902;">false</span>)</span>
 <span id="cb56-15"><span class="fu" style="color: #4758AB;">current_figure</span>()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="53">
+<div class="cell-output cell-output-display" data-execution_count="54">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-54-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>With one obvious issue: That is not the trigonal symmetry of graphene. What actually happens, is that the <img src="https://latex.codecogs.com/png.latex?2s">, <img src="https://latex.codecogs.com/png.latex?2p_x">, and <img src="https://latex.codecogs.com/png.latex?2p_y"> orbitals undergo hybridization: By the same argument used for the formation of the cubic harmonics, you can mix the one <img src="https://latex.codecogs.com/png.latex?2s"> and two <img src="https://latex.codecogs.com/png.latex?2p"> orbitals to form a trigonal structure with lopsided orbitals extending outwards from the center, rotated by 120 degrees:</p>
-<div class="cell" data-execution_count="54">
+<div class="cell" data-execution_count="55">
 <div class="sourceCode cell-code" id="cb57" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb57-1"><span class="fu" style="color: #4758AB;">ψ1</span>(r) <span class="op" style="color: #5E5E5E;">=</span> <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span><span class="fu" style="color: #4758AB;">√</span>(<span class="fl" style="color: #AD0000;">3</span>)<span class="fu" style="color: #4758AB;">*ψ2s</span>(r) <span class="op" style="color: #5E5E5E;">+</span> <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span><span class="fu" style="color: #4758AB;">√</span>(<span class="fl" style="color: #AD0000;">6</span>) <span class="op" style="color: #5E5E5E;">*</span> <span class="fu" style="color: #4758AB;">ψ2px</span>(r) <span class="op" style="color: #5E5E5E;">+</span> <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span><span class="fu" style="color: #4758AB;">√</span>(<span class="fl" style="color: #AD0000;">2</span>) <span class="op" style="color: #5E5E5E;">*</span> <span class="fu" style="color: #4758AB;">ψ2py</span>(r)</span>
 <span id="cb57-2"><span class="fu" style="color: #4758AB;">ψ2</span>(r) <span class="op" style="color: #5E5E5E;">=</span> <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span><span class="fu" style="color: #4758AB;">√</span>(<span class="fl" style="color: #AD0000;">3</span>)<span class="fu" style="color: #4758AB;">*ψ2s</span>(r) <span class="op" style="color: #5E5E5E;">+</span> <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span><span class="fu" style="color: #4758AB;">√</span>(<span class="fl" style="color: #AD0000;">6</span>) <span class="op" style="color: #5E5E5E;">*</span> <span class="fu" style="color: #4758AB;">ψ2px</span>(r) <span class="op" style="color: #5E5E5E;">-</span> <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span><span class="fu" style="color: #4758AB;">√</span>(<span class="fl" style="color: #AD0000;">2</span>) <span class="op" style="color: #5E5E5E;">*</span> <span class="fu" style="color: #4758AB;">ψ2py</span>(r)</span>
 <span id="cb57-3"><span class="fu" style="color: #4758AB;">ψ3</span>(r) <span class="op" style="color: #5E5E5E;">=</span> <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span><span class="fu" style="color: #4758AB;">√</span>(<span class="fl" style="color: #AD0000;">3</span>)<span class="fu" style="color: #4758AB;">*ψ2s</span>(r) <span class="op" style="color: #5E5E5E;">-</span> <span class="fl" style="color: #AD0000;">2</span><span class="op" style="color: #5E5E5E;">/</span><span class="fl" style="color: #AD0000;">3</span> <span class="op" style="color: #5E5E5E;">*</span> <span class="fu" style="color: #4758AB;">ψ2px</span>(r)</span>
@@ -905,14 +1023,14 @@
 <span id="cb57-18"><span class="fu" style="color: #4758AB;">contour!</span>(fooz, levels<span class="op" style="color: #5E5E5E;">=</span>[<span class="fl" style="color: #AD0000;">5e-3</span>])</span>
 <span id="cb57-19"><span class="fu" style="color: #4758AB;">hidedecorations!</span>(hybp, label<span class="op" style="color: #5E5E5E;">=</span><span class="cn" style="color: #8f5902;">false</span>)</span>
 <span id="cb57-20"><span class="fu" style="color: #4758AB;">current_figure</span>()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="54">
+<div class="cell-output cell-output-display" data-execution_count="55">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-55-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>Because the 2-dimensional graphene sheet doesn’t have a translational symmetry along the z-axis, the <img src="https://latex.codecogs.com/png.latex?2p_z"> orbitals keep their shape. This can be seen from calculating the overlap integrals <img src="https://latex.codecogs.com/png.latex?%5Cleft%3C%202p_z%20%7C%20%5Cphi%20%5Cright%3E"> which are equal to 0 for <img src="https://latex.codecogs.com/png.latex?%5Cleft%7C%20%5Cphi%20%5Cright%3E%20=%20%5Cleft%7C%202p_%7Bx,y%7D%20%5Cright%3E"> or <img src="https://latex.codecogs.com/png.latex?%5Cleft%7C%202s%20%5Cright%3E"> at the same site because they are orthogonal, and also equal to zero when overlapping from different sites, because everything else lies in plane <img src="https://latex.codecogs.com/png.latex?z=0">, over which the <img src="https://latex.codecogs.com/png.latex?%7C2p_z%3E"> is anti-symmetric (any contribution from <img src="https://latex.codecogs.com/png.latex?z%3E0"> will be exactly cancelled by contributions from <img src="https://latex.codecogs.com/png.latex?z%3C0">).</p>
 <p>This is known as <a href="https://en.wikipedia.org/wiki/Orbital_hybridisation#sp2"><img src="https://latex.codecogs.com/png.latex?sp%5E2"> hybridization</a>, named so because 2 of the <img src="https://latex.codecogs.com/png.latex?2p"> orbitals participate in it (if we were working with a diamond, all orbitals would undergo a <img src="https://latex.codecogs.com/png.latex?sp%5E3"> hybridization, forming a tetrahedral structure).</p>
 <p>But solving the whole problem by just symmetry arguments is not what I want to do here. Let’s pretend we don’t know anything about hybridization and prepare the crystal with the 4 regular cubic harmonics sitting at each site:</p>
-<div class="cell" data-execution_count="55">
+<div class="cell" data-execution_count="56">
 <div class="sourceCode cell-code" id="cb58" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb58-1">orbs <span class="op" style="color: #5E5E5E;">=</span> [</span>
 <span id="cb58-2">    (<span class="op" style="color: #5E5E5E;">:</span>s, [<span class="fl" style="color: #AD0000;">2</span><span class="op" style="color: #5E5E5E;">/</span><span class="fl" style="color: #AD0000;">3</span>, <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span><span class="fl" style="color: #AD0000;">3</span>]),  <span class="co" style="color: #5E5E5E;">#1</span></span>
 <span id="cb58-3">    (<span class="op" style="color: #5E5E5E;">:</span>s, [<span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span><span class="fl" style="color: #AD0000;">3</span>, <span class="fl" style="color: #AD0000;">2</span><span class="op" style="color: #5E5E5E;">/</span><span class="fl" style="color: #AD0000;">3</span>]),  <span class="co" style="color: #5E5E5E;">#2</span></span>
@@ -927,7 +1045,7 @@
 <span id="cb58-12">    (<span class="op" style="color: #5E5E5E;">:</span>pz, [<span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span><span class="fl" style="color: #AD0000;">3</span>, <span class="fl" style="color: #AD0000;">2</span><span class="op" style="color: #5E5E5E;">/</span><span class="fl" style="color: #AD0000;">3</span>]), <span class="co" style="color: #5E5E5E;">#8</span></span>
 <span id="cb58-13">];</span></code></pre></div>
 </div>
-<div class="cell" data-execution_count="56">
+<div class="cell" data-execution_count="57">
 <div class="sourceCode cell-code" id="cb59" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb59-1">grorbs <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Crystal</span>(</span>
 <span id="cb59-2">    <span class="fu" style="color: #4758AB;">Lattice</span>(<span class="fl" style="color: #AD0000;">2.468</span>Å, <span class="fl" style="color: #AD0000;">2.468</span>Å, <span class="fl" style="color: #AD0000;">120</span>),</span>
 <span id="cb59-3">    <span class="fu" style="color: #4758AB;">UnitCell</span>([<span class="fu" style="color: #4758AB;">first</span>(orb) for orb <span class="op" style="color: #5E5E5E;">∈</span> orbs], (<span class="fu" style="color: #4758AB;">last</span>(orb) <span class="cf" style="color: #003B4F;">for</span> orb <span class="op" style="color: #5E5E5E;">∈</span> orbs)<span class="op" style="color: #5E5E5E;">...</span>)</span>
@@ -936,7 +1054,7 @@
 <p>Now comes the fun part. There are 48 non-conjugate hops and 2 different on-site energies (one for <img src="https://latex.codecogs.com/png.latex?2s"> and <img src="https://latex.codecogs.com/png.latex?2p"> at each site), leading to a Hamiltonian with 50 free parameters, which is about 40 too many for practical purposes. Fortunately, the integrals of type <img src="https://latex.codecogs.com/png.latex?%5Cleft%3C%20%5Cphi_1%20%5Cright%7C%20%5Chat%7BH%7D%20%5Cleft%7C%20%5Cphi_2%20%5Cright%3E"> can be nicely factored if the <img src="https://latex.codecogs.com/png.latex?%5Cleft%7C%20%5Cphi%20%5Cright%3E">s are cubic harmonics, as was shown by <a href="https://doi.org/10.1103%2FPhysRev.94.1498">Slater and Koster</a> (non-paywalled article <a href="http://users.wfu.edu/natalie/s15phy752/lecturenote/SlaterKoster.PhysRev.94.1498.pdf">here</a>). Looking at the <a href="https://en.wikipedia.org/wiki/Tight_binding#Table_of_interatomic_matrix_elements">abridged list at Wikipedia</a>, you see that we need only two sets of four numbers and the displacement vector of the orbitals corresponding to each hop. The values are for integrals between two <img src="https://latex.codecogs.com/png.latex?s">-type orbitals labeled <img src="https://latex.codecogs.com/png.latex?ss%5Csigma">, an <img src="https://latex.codecogs.com/png.latex?s">-type and <img src="https://latex.codecogs.com/png.latex?p">-type orbital labeled <img src="https://latex.codecogs.com/png.latex?sp%5Csigma">, two <img src="https://latex.codecogs.com/png.latex?p">-type orbitals in the same plane (<img src="https://latex.codecogs.com/png.latex?pp%5Csigma">), and two <img src="https://latex.codecogs.com/png.latex?p">-type orbitals extending in planes perpendicular to each other (<img src="https://latex.codecogs.com/png.latex?pp%5Cpi">). This is known as the Slater-Koster (SK) parametrization and it reduces the number of free parameters down to 10 in our case.</p>
 <p>And this is where the tight-binding methods really shine. You can do a computationally heavy calculation (e.g., DFT) or measurement (say, photoemission) of the band energies at a few select momentum values and then fit the parameters to these known energy values. After that, you can quickly churn out the band structure all across the k-space, or add some more physics to it if you so please.</p>
 <p>To nobody’s surprise, this was <a href="https://journals.aps.org/prb/abstract/10.1103/PhysRevB.82.245412">already done for graphene</a> (<a href="https://wiki.physics.udel.edu/wiki_qttg/images/9/99/FABIAN%3Dtight_binding_theory_of_spin_orbit_coupling_in_graphene.pdf">non-paywall</a>), so I can just extract the numbers:</p>
-<div class="cell" data-execution_count="57">
+<div class="cell" data-execution_count="58">
 <div class="sourceCode cell-code" id="cb60" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb60-1">hopping_ints <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Dict</span>(</span>
 <span id="cb60-2">    <span class="op" style="color: #5E5E5E;">:</span>ssσ <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">5.729</span>eV,</span>
 <span id="cb60-3">    <span class="op" style="color: #5E5E5E;">:</span>spσ <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="fl" style="color: #AD0000;">5.618</span>eV,</span>
@@ -955,7 +1073,7 @@
 <span id="cb60-16">);</span></code></pre></div>
 </div>
 <p>With that, we start feeding our code the values (I use <a href="https://en.wikipedia.org/wiki/Pattern_matching">pattern matching</a> with the <code>@match</code> macro to avoid horribly nested if-else statements):</p>
-<div class="cell" data-execution_count="58">
+<div class="cell" data-execution_count="59">
 <div class="sourceCode cell-code" id="cb61" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb61-1">gr2hops <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Hoppings</span>(grorbs)</span>
 <span id="cb61-2"></span>
 <span id="cb61-3"><span class="fu" style="color: #4758AB;">dir_cos</span>(r) <span class="op" style="color: #5E5E5E;">=</span> r <span class="op" style="color: #5E5E5E;">./</span> <span class="fu" style="color: #4758AB;">norm</span>(r)</span>
@@ -1016,7 +1134,7 @@
 </div>
 <p>The symmetry arguments creep in here again: almost every value related to the <img src="https://latex.codecogs.com/png.latex?p_z"> orbitals, whether it’s hopping or overlap, is equal to 0 because the <img src="https://latex.codecogs.com/png.latex?z">-distance of all orbitals is equal to 0. The only non-zero contribution is from the <img src="https://latex.codecogs.com/png.latex?pp%5Cpi">-terms of <img src="https://latex.codecogs.com/png.latex?p_z"> orbitals as they are aligned in a plane perpendicular to the <img src="https://latex.codecogs.com/png.latex?xy">-directions.</p>
 <p>With the parameters done, now I just construct the k-space trajectory, such that we can compare it to the published stuff linked above:</p>
-<div class="cell" data-execution_count="59">
+<div class="cell" data-execution_count="60">
 <div class="sourceCode cell-code" id="cb62" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb62-1">grks2 <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">kpath</span>([</span>
 <span id="cb62-2">        <span class="op" style="color: #5E5E5E;">:</span>K <span class="op" style="color: #5E5E5E;">=&gt;</span> [<span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span><span class="fl" style="color: #AD0000;">3</span>,<span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span><span class="fl" style="color: #AD0000;">3</span>],</span>
 <span id="cb62-3">        <span class="op" style="color: #5E5E5E;">:</span>Γ <span class="op" style="color: #5E5E5E;">=&gt;</span> [<span class="fl" style="color: #AD0000;">0</span>,<span class="fl" style="color: #AD0000;">0</span>],</span>
@@ -1025,7 +1143,7 @@
 <span id="cb62-6">        ], <span class="fl" style="color: #AD0000;">0.005</span>);</span></code></pre></div>
 </div>
 <p>And solve, this time keeping the eigenvalues <em>and</em> eigenvectors (which I normalize):</p>
-<div class="cell" data-execution_count="60">
+<div class="cell" data-execution_count="61">
 <div class="sourceCode cell-code" id="cb63" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb63-1"><span class="fu" style="color: #4758AB;">gr2tbH</span>(k) <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">tbH</span>(k, gr2hops)</span>
 <span id="cb63-2">gr2sols <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">gr2tbH</span>.(grks2.path) <span class="op" style="color: #5E5E5E;">.|&gt;</span> <span class="fu" style="color: #4758AB;">x-&gt;eigen</span>(x<span class="op" style="color: #5E5E5E;">...</span>)</span>
 <span id="cb63-3">gr2es <span class="op" style="color: #5E5E5E;">=</span> [eig.values for eig <span class="op" style="color: #5E5E5E;">∈</span> gr2sols]</span>
@@ -1033,7 +1151,7 @@
 </div>
 <p>I could just plot the bands the same boring way as before but, because this is the money plot of this part, I’ll get a bit fancier with it.</p>
 <p>The elements of the eigenvectors (or rather their squares) tell us how much of each orbital is mixed into the band at a given k-value, so we can tell if a given band has more <img src="https://latex.codecogs.com/png.latex?2p_%7Bx/y/z%7D"> or <img src="https://latex.codecogs.com/png.latex?2s"> character. Because this is not my first rodeo (and I read the above-linked papers), I’ll color-code the bands by three different categories: the redder the band, the more <img src="https://latex.codecogs.com/png.latex?2s">-like it is at that momentum, <img src="https://latex.codecogs.com/png.latex?2p_%7Bx/y%7D">-like bands are green and bands with <img src="https://latex.codecogs.com/png.latex?2p_z"> character will be blue:</p>
-<div class="cell" data-execution_count="61">
+<div class="cell" data-execution_count="62">
 <div class="sourceCode cell-code" id="cb64" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb64-1">fig_gr2 <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Figure</span>()</span>
 <span id="cb64-2">ax_gr2 <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Axis</span>(fig_gr2)</span>
 <span id="cb64-3">ax_gr2.xticks <span class="op" style="color: #5E5E5E;">=</span> ([p.second for p <span class="op" style="color: #5E5E5E;">∈</span> grks2.ppoints], </span>
@@ -1057,18 +1175,18 @@
 <span id="cb64-21"></span>
 <span id="cb64-22">fig_gr2[<span class="fl" style="color: #AD0000;">1</span>,<span class="fl" style="color: #AD0000;">1</span>] <span class="op" style="color: #5E5E5E;">=</span> ax_gr2</span>
 <span id="cb64-23"><span class="fu" style="color: #4758AB;">current_figure</span>()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="61">
+<div class="cell-output cell-output-display" data-execution_count="62">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-62-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>And here we are - real, raw, physics. You see that the <img src="https://latex.codecogs.com/png.latex?2s"> and <img src="https://latex.codecogs.com/png.latex?2p_%7Bx/y%7D"> bands do mix, while the <img src="https://latex.codecogs.com/png.latex?2p_z"> bands stay untouched, which is exactly the <img src="https://latex.codecogs.com/png.latex?sp%5E2"> hybridization in action and the reason why you often see graphene discussed only in terms of two orbitals. The electrons fill up the states up to the Fermi level (E = 0) and the only two bands close to that value are the <img src="https://latex.codecogs.com/png.latex?2p_z"> orbitals, which means that their linear dispersion around the <img src="https://latex.codecogs.com/png.latex?K">-point dominates low-energy physics (the usual solid state and condensed matter conditions). Because they don’t interact with the rest, one can pluck them out of the Hamiltonian and deal with just the 2-state system.</p>
 <p>The last two small things to discuss are the amount of mixing and the energy asymmetry of the <img src="https://latex.codecogs.com/png.latex?2p_z"> bands. You see that the states close to the <img src="https://latex.codecogs.com/png.latex?%5CGamma">-point (lowest momentum) are very symmetric in real space. They either belong to the rotationally symmetric <img src="https://latex.codecogs.com/png.latex?2s"> band or to the degenerate <img src="https://latex.codecogs.com/png.latex?2p_%7Bx,y%7D"> bands that would probably like to form the also symmetric <img src="https://latex.codecogs.com/png.latex?2p_%7Bm_l%20=%20%5Cpm,1%7D"> orbitals. This is because the highly delocalized low-momentum states feel a mostly uniform background due to their spatial extent. But as the states disperse, the lattice symmetry does its thing and forces the hybridization so that they extend along the space between the atomic cores which minimizes their potential energy.</p>
 <p>As for the <img src="https://latex.codecogs.com/png.latex?2p_z"> orbitals, we didn’t do it entirely right the first time. In the model graphene, we assumed that both states don’t have any structure to them and that they have the same energy. In real graphene that’s not true. The <img src="https://latex.codecogs.com/png.latex?2p_z"> orbitals have polarity, where the wavefunction is negative at one lobe and positive at the other, which affects the energy of states that are constructed by linear combinations of the <img src="https://latex.codecogs.com/png.latex?2p_z"> orbitals. Because we’re in a crystal with an infinite amount of atoms, it’s not as intuitively obvious, but the effect at play is very similar to that of the simple splitting into <a href="https://en.wikipedia.org/wiki/Bonding_molecular_orbital">bonding</a> and <a href="https://en.wikipedia.org/wiki/Antibonding_molecular_orbital">anti-bonding</a> orbitals in molecules, where delocalization of the state reduces the energy of the parallel one. The case at hand is, of course, still somewhat artificial because the value of the overlap integral can have an arbitrary sign or magnitude. The real physics that’s driving the electron-hole asymmetry in graphene is much more complicated, but it manifests itself in this simple manner when fit to better data.</p>
-<section id="packing-it-up" class="level3">
-<h3 class="anchored" data-anchor-id="packing-it-up">Packing it up</h3>
+<section id="sec-cmpm3-interface" class="level3">
+<h3 class="anchored" data-anchor-id="sec-cmpm3-interface">Packing it up</h3>
 <p>Everything works, but there’s a lot of boilerplate code involved in getting from the definition of the crystal to plotting the bands. To eliminate the headaches of dealing with multiple structures and functions with arcane signatures, I’ll finish by creating a kind of an <a href="https://en.wikipedia.org/wiki/Interface_(computing)">interface</a>.</p>
 <p>The user wants to know how to define a problem and have it solved, maybe plotted. They don’t want to deal with the inner workings of the solution. For that, I define a type called <code>Solution</code> which will hold all the important data, no matter how the solution was acquired (and have accessor functions to retrieve it, in case I change the inner structure of the <code>Solution</code> in the future):</p>
-<div class="cell" data-execution_count="62">
+<div class="cell" data-execution_count="63">
 <div class="sourceCode cell-code" id="cb65" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb65-1"><span class="kw" style="color: #003B4F;">struct</span> Solution</span>
 <span id="cb65-2">    ks<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Vector{Union{&lt;:Real, Vector{&lt;:Real}}}</span></span>
 <span id="cb65-3">    kp<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Vector{&lt;:Real}</span></span>
@@ -1082,14 +1200,14 @@
 <span id="cb65-11"><span class="fu" style="color: #4758AB;">kvecs</span>(s<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Solution</span>) <span class="op" style="color: #5E5E5E;">=</span> s.ks;</span></code></pre></div>
 </div>
 <p>And a function that will give the solution. First, a catch-all method that errors if the problem definition doesn’t yield a solution:</p>
-<div class="cell" data-execution_count="63">
+<div class="cell" data-execution_count="64">
 <div class="sourceCode cell-code" id="cb66" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb66-1"><span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">solve</span>(p)</span>
 <span id="cb66-2">    t <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">typeof</span>(p)</span>
 <span id="cb66-3">    <span class="fu" style="color: #4758AB;">ArgumentError</span>(<span class="st" style="color: #20794D;">"</span><span class="sc" style="color: #5E5E5E;">$</span>t<span class="st" style="color: #20794D;"> has no solution implemented."</span>)</span>
 <span id="cb66-4"><span class="kw" style="color: #003B4F;">end</span>;</span></code></pre></div>
 </div>
 <p>Then, I’ll conjure a type that determines the problem to be solved. The solution in this case is the tight-binding method. Because <code>Hoppings</code> are relatively free-form in their construction, they have to be generated externally, either with the help of provided helper functions or entirely by hand.</p>
-<div class="cell" data-execution_count="64">
+<div class="cell" data-execution_count="65">
 <div class="sourceCode cell-code" id="cb67" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb67-1"><span class="kw" style="color: #003B4F;">struct</span> TightBindingProblem</span>
 <span id="cb67-2">    hops<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Hoppings</span></span>
 <span id="cb67-3">    ks<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Vector{Union{&lt;:Real, Vector{&lt;:Real}}}</span></span>
@@ -1103,7 +1221,7 @@
 <span id="cb67-11"><span class="kw" style="color: #003B4F;">end</span>;</span></code></pre></div>
 </div>
 <p>And finally, a method of <code>solve</code> that will handle the tight-binding problem.</p>
-<div class="cell" data-execution_count="65">
+<div class="cell" data-execution_count="66">
 <div class="sourceCode cell-code" id="cb68" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb68-1"><span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">solve</span>(p<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">TightBindingProblem</span>)<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Solution</span></span>
 <span id="cb68-2">    <span class="fu" style="color: #4758AB;">h</span>(k) <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">tbH</span>(k, p.hops)</span>
 <span id="cb68-3">    sols <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">gr2tbH</span>.(p.ks) <span class="op" style="color: #5E5E5E;">.|&gt;</span> <span class="fu" style="color: #4758AB;">x-&gt;eigen</span>(x<span class="op" style="color: #5E5E5E;">...</span>)</span>
@@ -1117,7 +1235,7 @@
 <span id="cb68-11"><span class="kw" style="color: #003B4F;">end</span>;</span></code></pre></div>
 </div>
 <p>That is technically all that’s needed, but we can provide a convenience function that will plot the bands we just solved for, which will work with any method, as long as it outputs our <code>Solution</code>:</p>
-<div class="cell" data-execution_count="66">
+<div class="cell" data-execution_count="67">
 <div class="sourceCode cell-code" id="cb69" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb69-1"><span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">plotSolution</span>(s<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Solution</span>)</span>
 <span id="cb69-2">    fig <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Figure</span>()</span>
 <span id="cb69-3">    ax <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Axis</span>(fig)</span>
@@ -1134,7 +1252,7 @@
 <span id="cb69-14"><span class="kw" style="color: #003B4F;">end</span>;</span></code></pre></div>
 </div>
 <p>And this is how it works in practice. I’ll define the TB problem, using the hoppings I already made before:</p>
-<div class="cell" data-execution_count="67">
+<div class="cell" data-execution_count="68">
 <div class="sourceCode cell-code" id="cb70" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb70-1">grprob <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">TightBindingProblem</span>(gr2hops, [</span>
 <span id="cb70-2">    <span class="op" style="color: #5E5E5E;">:</span>K <span class="op" style="color: #5E5E5E;">=&gt;</span> [<span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span><span class="fl" style="color: #AD0000;">3</span>,<span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">/</span><span class="fl" style="color: #AD0000;">3</span>],</span>
 <span id="cb70-3">    <span class="op" style="color: #5E5E5E;">:</span>Γ <span class="op" style="color: #5E5E5E;">=&gt;</span> [<span class="fl" style="color: #AD0000;">0</span>,<span class="fl" style="color: #AD0000;">0</span>],</span>
@@ -1143,12 +1261,12 @@
 <span id="cb70-6">], <span class="fl" style="color: #AD0000;">0.005</span>);</span></code></pre></div>
 </div>
 <p>Solve it and pipe it straight into the plotting routine:</p>
-<div class="cell" data-execution_count="68">
+<div class="cell" data-execution_count="69">
 <div class="sourceCode cell-code" id="cb71" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb71-1"><span class="fu" style="color: #4758AB;">solve</span>(grprob) <span class="op" style="color: #5E5E5E;">|&gt;</span> plotSolution</span>
 <span id="cb71-2"><span class="fu" style="color: #4758AB;">ylims!</span>(<span class="fu" style="color: #4758AB;">current_axis</span>(), (<span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">0.75</span>,<span class="fl" style="color: #AD0000;">0.55</span>))</span>
 <span id="cb71-3"><span class="fu" style="color: #4758AB;">current_axis</span>().title<span class="op" style="color: #5E5E5E;">=</span><span class="st" style="color: #20794D;">"Graphene"</span></span>
 <span id="cb71-4"><span class="fu" style="color: #4758AB;">current_figure</span>()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="68">
+<div class="cell-output cell-output-display" data-execution_count="69">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-69-output-1.png" class="img-fluid"></p>
 </div>
 </div>
@@ -1161,7 +1279,17 @@
 </section>
 </section>
 
- ]]></description>
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>technically, there’s only 219 affine space groups and 230 crystallographic space groups, but we’re getting too deep into this non-sense.↩︎</p></li>
+<li id="fn2"><p>LPT: a determinant of a matrix is the volume of the parallelepiped spanned by the vectors in the matrix. It’s frequently used for normalization and easy to calculate, so I threw it in.↩︎</p></li>
+<li id="fn3"><p>Ignoring, for the moment, how realistic that is.↩︎</p></li>
+<li id="fn4"><p>It takes <a href="https://doi.org/10.1103/PhysRev.118.1182">only two coefficients</a> <img src="https://latex.codecogs.com/png.latex?V_%7B%5B111%5D%7D"> and <img src="https://latex.codecogs.com/png.latex?V_%7B%5B200%5D%7D"> to get good results for aluminum↩︎</p></li>
+<li id="fn5"><p><img src="https://latex.codecogs.com/png.latex?c"> in the graphene case is, of course, not the speed of light - if you really wanted to interpret it as such, it’s about <a href="https://www.nature.com/articles/nature04233">100 times slower</a>.↩︎</p></li>
+</ol>
+</section></div> ]]></description>
   <category>Julia</category>
   <category>Quantum mechanics</category>
   <category>Solid state physics</category>
