@@ -130,3 +130,5 @@ dmypy.json
 # quarto
 /.quarto/
 /_site/
+_freeze
+.jupyter_cache
