@@ -132,3 +132,4 @@ dmypy.json
 /_site/
 _freeze
 .jupyter_cache
+.auctex-auto
