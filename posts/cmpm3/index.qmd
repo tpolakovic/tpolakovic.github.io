@@ -138,6 +138,7 @@ function Lattice(a::T, b::T, c::T, α::Real, β::Real, γ::Real) where T <: Unio
     Lattice(R)
 end;
 ```
+
 ::: {.callout-note collapse="true"}
 ## About `Struct`s and constructors
 A lot going on here. Because the notion of the lattice will come up time and time again, I created a [composite type](https://docs.julialang.org/en/v1/manual/types/#Composite-Types) `Lattice`, which is a structure that holds the fields `R`, `G` and `V`. I also made it parametric over a restricted set of types, where `R` and `G` can be either of type `T` or an array of `T`s (that's what the `Union` is for) and `T` has to be a subtype of real numbers (e.g. floats or integers). The option to have scalar `T` is because there's no reason to pack a single number into an array if the lattice happens to be 1-dimensional. As to why I keep T so generic, there might be situations where we purposefully do not want it to be a 64-bit float. One such case is if I ever decide to also use this soon-to-be library for calculations on GPUs which often natively support only 32-bit floats (or we might want to use a symbolic type, `BigFloat`, etc.)
@@ -203,6 +204,7 @@ struct Crystal{N}
     end
 end
 ```
+
 ::: {.callout-note collapse=true}
 Inner constructor here is to handle the type inference of the [parametric type](https://docs.julialang.org/en/v1/manual/types/#Parametric-Types).
 :::

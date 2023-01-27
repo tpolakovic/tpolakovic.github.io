@@ -1,0 +1,245 @@
+---
+title: 'Computational Physics for the Masses Part 4: Symmetric'
+description: 'A brief part on crystal symmetries and how to (ab)use them for fun and profit.'
+author: Tomas Polakovic
+date: 01/26/2023
+categories:
+  - Julia
+  - Quantum mechanics
+  - Solid state physics
+jupyter: julia4t-1.8
+freeze: auto
+bibliography: references.bib
+csl: style.csl
+---
+
+Today we're going to talk about something that causes most physics students to lose interest in solid state
+physics^[Can't entirely say I blame them.]: Crystal symmetries and (some) of their uses. As painful as it is,
+these things are really useful and they pop up all over the place. I try to painlessly intersperse them into
+more entertaining stuff as much as possible, but sometimes there's no avoiding spending a whole
+chapther/blog post on just crystallopgraphy. And this is one those situations...
+
+---
+
+As usual, we start with packages:
+
+```{julia}
+using Pkg
+Pkg.activate("./env")
+
+using SimpleQuantum
+using MinkowskiReduction
+using Brillouin
+using StaticArrays
+using SplitApplyCombine
+using Combinatorics
+using LinearAlgebra
+
+using Colors
+using GLMakie
+theme = Theme(
+    Lines = (color = :orangered2, cycle = [],)
+)
+set_theme!(theme)
+```
+
+::: {.callout-note collapse=true}
+## Using our package
+This is going to be the first time we're using the library (package in Julia terms) that we started working on
+[previously](/posts/cmpm3/). I named it somewhat unimaginably `SimpleQuantum` and, if you look at it's
+[repo](https://github.com/tpolakovic/SimpleQuantum), it's already at version 0.2.5 (I'm using
+[Semantic versioning](https://semver.org)).
+
+It's not on the Julia package registry, so to add it, you have to provide the link to the repo. From now on, I'll 
+try my best to always keep these posts synced with releases of the package, but not this time. The package went 
+through a lot in the last couple of months, so what we'll be doing today is already in there. If you want it in a 
+state closest to what's happening in this post, you should add it at version 0.2.5 by writing the putting the 
+following into your Julia REPL:
+
+````
+] add https://github.com/tpolakovic/SimpleQuantum#v0.2.5
+````
+:::
+
+There a few usual suspects that don't need any introduction and `Combinatorics` is pretty self-explanatory. Then 
+there's a bunch of new stuff: `MinkowskiReduction` is a package for basis reduction (explanation later), 
+`Brillouin` is used for some nice visualization of Brillouin zones and Wigner-Seitz cells, `StaticArrays` is for 
+more efficient small arrays, and `SplitApplyCombine` for some convenience functions related to array splitting and 
+combining.
+
+### Dense motivation {#sec-cmpm4-dos}
+
+To motivate why we should bother with all this, let's propose the following problem: Imagine that we have function
+$f(\vec{k})$ which is a function of momentum in our crystal. And now imagine that we want an integral of the 
+function, in principle over the whole (momentum) space:
+
+$$
+F = \int f(\vec{k}) d\vec{k}
+$$
+
+Easy enough, if it weren't for the fact that we'll want to do this numerically and the momentum space is infinite.
+While we're imagining, let's also imagine that we have a large (but for the moment finite) $D$-dimensional crystal with $\mathcal{N} = \prod_{i=1} ^{D} \mathcal{N}_i$ unit cells. If the crystal is finite, it has finite amount of lattice vectors and, consequently, also only a finite amount of physically meaningful reciprocal lattice
+points^[See the [previous discussion](/posts/cmpm3/#sec-cmpm3-groups) on real and reciprocal spaces in crystals]:
+
+$$
+\vec{q}_{\vec{l}} = \sum_i ^D \frac{l_i}{\mathcal{N}_i} \vec{G}_{n_i}.
+$$
+
+For a sufficiently large crystal, a sum over the vectors $\vec{q}_{\vec{l}}$ can be thought of as the Riemann sum,
+meaning that we can write:
+$$
+\frac{(2\pi)^3}{\mathcal{V}}\sum_{\vec{q}_{\vec{l}}} f(\vec{q}_{\vec{l}})= \frac{(2\pi)^3}{\mathcal{N}\Omega}\sum _{\vec{q} ^{\prime} _{\vec{l}}} f(\vec{q} ^{\prime} _{\vec{l}}) \stackrel{\mathcal{N} \rightarrow \infty}{=} \int f(\vec{q}) d\vec{q},
+$$
+
+Where $\Omega$ is the volume of the unit cell. In the second expression, I used the fact that all momenta in a
+crystal can be represented only by the momenta $\vec{q}^{\prime}$ in the first Brillouin zone.^[Again, see the [previous discussion](/posts/cmpm3/#sec-cmpm3-groups) -- told you it's gonna be important.]
+
+That's the formal side, now let's imagine an actual physics problem: heat capacity of metals at low temperatures.
+From thermodynamics, we know that the specific heat of...well, anything really, is defined as:
+
+$$
+c_V = \frac{1}{\mathcal{V}} \left. \frac{\partial E}{\partial T} \right|_{\mathcal{V}},
+$$
+
+which describes how much does the internal energy of the system change when we change it's temperature while 
+keeping volume
+constant.^[If this is new to you, googling some [lecture notes](https://scholar.harvard.edu/files/schwartz/files/5-thermodynamics.pdf) or procuring a [book](https://books.google.com/books/about/Fundamentals_of_Statistical_and_Thermal.html?id=ObsbAAAAQBAJ) is probably a good idea.] To get the total energy of our electrons, we need to count
+how many there are at each energy and multiply them by that value. Because we're talking thermodynamics, we need
+to introduce probability distributions into the mix, to properly count how many electrons there are at a given
+(degenerate) energy level at a given temperature $T$. Because electrons are fermions, that probability
+distribution is the Fermi-Dirac distribution
+$f(\epsilon, T) = \frac{1}{\exp{\left( \frac{\epsilon - E_{F}}{T} \right)} + 1}$,
+where $E_F$ is the [Fermi energy](https://en.wikipedia.org/wiki/Fermi_energy) (maximum occupied energy of the 
+system). With that, the energy of the electron system is:
+
+$$
+E(T) = 2 \mathcal{V} \int N(\epsilon) \epsilon f(\epsilon, T) d\epsilon,
+$$
+
+Where $N(\epsilon)$ is the number of electron states at energy $\epsilon$ (factor of 2 because each state can take 
+two electrons of opposite spin). After using the
+[Sommerfeld expansion](https://en.wikipedia.org/wiki/Sommerfeld_expansion) for the expression 
+above, we get (up to second order in temperature):
+
+$$
+E(T) = E_0 + \frac{\pi^2}{3} T^2 N(E_F) \mathcal{V}.
+$$
+
+From there, it's pretty straight forward to show that the specific heat simply becomes:
+
+$$
+c_V = \frac{2\pi^2}{3} N(E_F) T.
+$$
+
+You could argue that the intergral above is across energies and not momentum, but remember that the eigenstates 
+and eigenenergies of our crystal Hamiltonian [functions of momentum](/posts/cmpm3/#its-waves-all-the-way-down),
+so it can be rewritten in the form:
+
+$$
+E(T) = 2 \mathcal{V} \int N(\epsilon(\vec{k})) \epsilon(\vec{k}) f(\epsilon(\vec{k}), T) d\vec{k} = 
+\int d\epsilon \int \delta( \epsilon - E(\vec{k})) E(\vec{k}) f(E(\vec{k}), T) d\vec{k},
+$$
+
+Which, as complicated as it looks, is our self-imposed problem. The function that counts the states at a given 
+energy:
+
+$$
+N(E) = \frac{1}{(2\pi)^D}\int \delta(E - E(\vec{k})) d\vec{k} \approx \frac{1}{\mathcal{V}} \sum _{\vec{k}_i} \delta(E - E(\vec{k}_i))
+$$
+
+is called the [density of states](https://en.wikipedia.org/wiki/Density_of_states) and it pops up all over the 
+place in solid state and condensed matter, so even if it were the only thing we'll be able to calculate after we 
+finish this part, it is worthwhile to do.
+
+### Living on the grid {#sec-cmpm4-mpgrid}
+
+Just looking at the equations above, you'd think that the integrating over the Brillouin zone is not that hard.
+We already have two ways of calculating the energy (or whatever other property) as function of
+momentum^[Three, if we count the empty lattice approximation.], so we can just spread a dense enough grid over the 
+momentum space, evaluate the function(s) and sum it all together. You'd be right. But it's often desirable to do 
+this integration many times^[Tens of thousands of times in some cases.] and, in that case, we should be efficient 
+at it.
+
+The way the integrals are evaluated in practice has been proposed by Monkhorst and Pack @monkhorst1976special,
+after which it's called the Monkhorst-Pack grid method (MP grid for short). Their idea is that many points in the
+momentum space can be transformed into each other by the symmetries of the lattice, so the functions on these 
+points will have identical values. After this realization, the task becomes to find the smallest possible number
+of k-vectors that *cannot* be transformed into each other and finding how many "relatives" these points have 
+(i.e., into how many grid points in the Brillouin zone can they be transformed by lattice symmetries).
+
+The first thing to do is generating a grid that coincides with the symmetries of the reciprocal lattice. Let's have
+a D-dimensional crystal with primitive reciprocal lattice vectors $\left\{ \vec{G}_{n} \right\}_{n = 1} ^{D}$. 
+Next let's define a grid spacing in reduced coordinates as:
+
+$$
+\left\{ u_r \right\}_{r = 1} ^q = \left\{  \frac{2r - q - 1}{2q} \right\}_{r = 1} ^q.
+$$
+
+The grid with correct symmetries will then consist of points in k-space:
+
+$$
+\vec{k}_{\vec{r}} = \sum_{i = 1} ^D u_{r_i} \vec{G}_i,
+$$
+
+or, in other words, the correct grid is a square/cube grid in reduced coordinates with $q$ points along each axis.
+Coding this part is trivial:
+
+```{julia}
+function mpspace(q::Integer)
+    ((2r - q - 1) / 2q for r ∈ 1:q)
+end;
+```
+
+As we will be plotting a bunch in the Brillouin zone, I'll quickly make a function that plots it, using the 
+`wignerseitz` method from `Brillouin`:
+
+```{julia}
+function plotbz(c::Crystal)
+    gs = c.lattice.G' |> eachcol |> collect
+    c = wignerseitz(gs)
+    plot(c)
+end;
+```
+
+::: {.callout-note collapse=true}
+## `eachcol |> collect`ing
+
+`wignerseitz` takes the reciprocal basis as a vector or vectors, so I use `eachcol` to split my $G$ matrix into
+columns and `collect` it into a vector.
+:::
+
+And I'll define a simple square lattice which we'll use for visualization and demonstration purposes:
+
+```{julia}
+cr = Crystal(
+    Lattice(1, 1, 90,),
+    UnitCell([0., 0.,])
+)
+```
+
+The Brillouin zone of a square lattice is a square, which we can now finally plot along with our MP grid:
+
+```{julia}
+plotbz(cr)
+
+ks = Iterators.product(ntuple(_ -> mpspace(4), ndims(cr))...)
+G = cr.lattice.G'
+
+for k ∈ ks
+    k = collect(k)
+    k = G * k
+    scatter!(k...; color=:orange)
+end
+
+current_figure()
+```
+
+Nothing too exciting. I just create a 1D MP grid with 4 gridpoints and use `Iterators.product` to make all 
+products of them, forming a 2D square grid (and multiply by $G$ to get k-vectors in direct coords). This being a 
+square crystal, it will have a bunch of symmetries, like the 4-fold rotational symmetry, which means that, e.g., 
+all the points in the corners are equivalent. So the next step will be to progamatically find all the symmetries 
+of a crystal.
+
+### Grouping points {#sec-cmpm4-pg}
+
+And this is where things become more interesting.
