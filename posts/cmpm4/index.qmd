@@ -3,6 +3,7 @@ title: 'Computational Physics for the Masses Part 4: Symmetric'
 description: 'A brief part on crystal symmetries and how to (ab)use them for fun and profit.'
 author: Tomas Polakovic
 date: 03/17/2023
+image: thumbnail.png
 categories:
   - Julia
   - Quantum mechanics
