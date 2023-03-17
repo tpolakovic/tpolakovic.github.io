@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.335">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Tomas Polakovic">
+<meta name="dcterms.date" content="2023-03-17">
+<meta name="description" content="A brief part on crystal symmetries and how to (ab)use them for fun and profit.">
+
+<title>A Bit Correlated - Computational Physics for the Masses Part 4: Symmetric</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../favicon.ico" rel="icon">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="../../styles.css">
+<meta property="og:title" content="A Bit Correlated - Computational Physics for the Masses Part 4: Symmetric">
+<meta property="og:description" content="A brief part on crystal symmetries and how to (ab)use them for fun and profit.">
+<meta property="og:site-name" content="A Bit Correlated">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">A Bit Correlated</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml"><i class="bi bi-rss" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/tpolakovic/tpolakovic.github.io"><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Computational Physics for the Masses Part 4: Symmetric</h1>
+                  <div>
+        <div class="description">
+          A brief part on crystal symmetries and how to (ab)use them for fun and profit.
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">Julia</div>
+                <div class="quarto-category">Quantum mechanics</div>
+                <div class="quarto-category">Solid state physics</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Tomas Polakovic </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">March 17, 2023</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<p>Today we’re going to talk about something that causes most physics students to lose interest in solid state physics<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>: Crystal symmetries and (some) of their uses. As painful as it is, these things are really useful and they pop up all over the place. I try to painlessly intersperse them into more entertaining stuff as much as possible, but sometimes there’s no avoiding spending a whole chapther/blog post on just crystallopgraphy. And this is one those situations…</p>
+<hr>
+<p>As usual, we start with packages:</p>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Pkg</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">Pkg</span>.<span class="fu">activate</span>(<span class="st">"./env"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">SimpleQuantum</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">MinkowskiReduction</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Brillouin</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">StaticArrays</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">SplitApplyCombine</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Combinatorics</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">LinearAlgebra</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Unitful</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Colors</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">GLMakie</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>theme <span class="op">=</span> <span class="fu">Theme</span>(</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    Lines <span class="op">=</span> (color <span class="op">=</span> <span class="op">:</span>orangered2, cycle <span class="op">=</span> [],)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">set_theme!</span>(theme)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>  Activating project at `~/projects/website/posts/cmpm4/env`</code></pre>
+</div>
+</div>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Using our package
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>This is going to be the first time we’re using the library (package in Julia terms) that we started working on <a href="../../posts/cmpm3/">previously</a>. I named it somewhat unimaginably <code>SimpleQuantum</code> and, if you look at it’s <a href="https://github.com/tpolakovic/SimpleQuantum">repo</a>, it’s already at version 0.2.5 (I’m using <a href="https://semver.org">Semantic versioning</a>).</p>
+<p>It’s not on the Julia package registry, so to add it, you have to provide the link to the repo. From now on, I’ll try my best to always keep these posts synced with releases of the package, but not this time. The package went through a lot in the last couple of months, so what we’ll be doing today is already in there. If you want it in a state closest to what’s happening in this post, you should add it at version 0.2.5 by the following into your Julia REPL:</p>
+<pre><code>] add https://github.com/tpolakovic/SimpleQuantum#v0.2.5</code></pre>
+</div>
+</div>
+</div>
+<p>There a few usual suspects that don’t need any introduction and <code>Combinatorics</code> is pretty self-explanatory. Then there’s a bunch of new stuff: <code>MinkowskiReduction</code> is a package for basis reduction (explanation later), <code>Brillouin</code> is used for some nice visualization of Brillouin zones and Wigner-Seitz cells, <code>StaticArrays</code> is for more efficient small arrays, and <code>SplitApplyCombine</code> for some convenience functions related to array splitting and combining.</p>
+<section id="sec-cmpm4-dos" class="level3">
+<h3 class="anchored" data-anchor-id="sec-cmpm4-dos">Dense motivation</h3>
+<p>To motivate why we should bother with all this, let’s propose the following problem: Imagine that we have function <span class="math inline">\(f(\vec{k})\)</span> which is a function of momentum in our crystal. And now imagine that we want an integral of the function, in principle over the whole (momentum) space:</p>
+<p><span class="math display">\[
+F = \int f(\vec{k}) d\vec{k}
+\]</span></p>
+<p>Easy enough, if it weren’t for the fact that we’ll want to do this numerically and the momentum space is infinite. While we’re imagining, let’s also imagine that we have a large (but for the moment finite) <span class="math inline">\(D\)</span>-dimensional crystal with <span class="math inline">\(\mathcal{N} = \prod_{i=1} ^{D} \mathcal{N}_i\)</span> unit cells. If the crystal is finite, it has finite amount of lattice vectors and, consequently, also only a finite amount of physically meaningful reciprocal lattice points<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>:</p>
+<p><span class="math display">\[
+\vec{q}_{\vec{l}} = \sum_i ^D \frac{l_i}{\mathcal{N}_i} \vec{G}_{n_i}.
+\]</span></p>
+<p>For a sufficiently large crystal, a sum over the vectors <span class="math inline">\(\vec{q}_{\vec{l}}\)</span> can be thought of as the Riemann sum, meaning that we can write: <span class="math display">\[
+\frac{(2\pi)^3}{\mathcal{V}}\sum_{\vec{q}_{\vec{l}}} f(\vec{q}_{\vec{l}})= \frac{(2\pi)^3}{\mathcal{N}\Omega}\sum _{\vec{q} ^{\prime} _{\vec{l}}} f(\vec{q} ^{\prime} _{\vec{l}}) \stackrel{\mathcal{N} \rightarrow \infty}{=} \int f(\vec{q}) d\vec{q},
+\]</span></p>
+<p>Where <span class="math inline">\(\Omega\)</span> is the volume of the unit cell. In the second expression, I used the fact that all momenta in a crystal can be represented only by the momenta <span class="math inline">\(\vec{q}^{\prime}\)</span> in the first Brillouin zone.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
+<p>That’s the formal side, now let’s imagine an actual physics problem: heat capacity of metals at low temperatures. From thermodynamics, we know that the specific heat of…well, anything really, is defined as:</p>
+<p><span class="math display">\[
+c_V = \frac{1}{\mathcal{V}} \left. \frac{\partial E}{\partial T} \right|_{\mathcal{V}},
+\]</span></p>
+<p>which describes how much does the internal energy of the system change when we change it’s temperature while keeping volume constant.<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a> To get the total energy of our electrons, we need to count how many there are at each energy and multiply them by that value. Because we’re talking thermodynamics, we need to introduce probability distributions into the mix, to properly count how many electrons there are at a given (degenerate) energy level at a given temperature <span class="math inline">\(T\)</span>. Because electrons are fermions, that probability distribution is the Fermi-Dirac distribution <span class="math inline">\(f(\epsilon, T) = \frac{1}{\exp{\left( \frac{\epsilon - E_{F}}{T} \right)} + 1}\)</span>, where <span class="math inline">\(E_F\)</span> is the <a href="https://en.wikipedia.org/wiki/Fermi_energy">Fermi energy</a> (maximum occupied energy of the system). With that, the energy of the electronic system is:</p>
+<p><span class="math display">\[
+E(T) = 2 \mathcal{V} \int N(\epsilon) \epsilon f(\epsilon, T) d\epsilon,
+\]</span></p>
+<p>Where <span class="math inline">\(N(\epsilon)\)</span> is the number of electron states at energy <span class="math inline">\(\epsilon\)</span> (factor of 2 because each state can take two electrons of opposite spin). After using the <a href="https://en.wikipedia.org/wiki/Sommerfeld_expansion">Sommerfeld expansion</a> for the expression above, we get (up to second order in temperature):</p>
+<p><span class="math display">\[
+E(T) = E_0 + \frac{\pi^2}{3} T^2 N(E_F) \mathcal{V}.
+\]</span></p>
+<p>From there, it’s pretty straight forward to show that the specific heat simply becomes:</p>
+<p><span class="math display">\[
+c_V = \frac{2\pi^2}{3} N(E_F) T.
+\]</span></p>
+<p>You could argue that the intergral above is across energies and not momentum, but remember that the eigenstates and eigenenergies of our crystal Hamiltonian <a href="../../posts/cmpm3/#its-waves-all-the-way-down">functions of momentum</a>, so it can be rewritten in the form:</p>
+<p><span class="math display">\[
+E(T) = 2 \mathcal{V} \int N(\epsilon(\vec{k})) \epsilon(\vec{k}) f(\epsilon(\vec{k}), T) d\vec{k} =
+\int d\epsilon \int \delta( \epsilon - E(\vec{k})) E(\vec{k}) f(E(\vec{k}), T) d\vec{k},
+\]</span></p>
+<p>Which, as complicated as it looks, is our self-imposed problem. The function that counts the states at a given energy:</p>
+<p><span class="math display">\[
+N(E) = \frac{1}{(2\pi)^D}\int \delta(E - E(\vec{k})) d\vec{k} \approx \frac{1}{\mathcal{V}} \sum _{\vec{k}_i} \delta(E - E(\vec{k}_i))
+\]</span></p>
+<p>is called the <a href="https://en.wikipedia.org/wiki/Density_of_states">density of states</a> and it pops up all over the place in solid state and condensed matter, so even if it were the only thing we’ll be able to calculate after we finish this part, it is worthwhile to do.</p>
+</section>
+<section id="sec-cmpm4-mpgrid" class="level3">
+<h3 class="anchored" data-anchor-id="sec-cmpm4-mpgrid">Living on the grid</h3>
+<p>Just looking at the equations above, you’d think that the integrating over the Brillouin zone is not that hard. We already have two ways of calculating the energy (or whatever other property) as function of momentum<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>, so we can just spread a dense enough grid over the momentum space, evaluate the function(s) and sum it all together. You’d be right. But it’s often desirable to do this integration many times<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a> and, in that case, we should be efficient at it.</p>
+<p>The way the integrals are evaluated in practice has been proposed by Monkhorst and Pack <span class="citation" data-cites="monkhorst1976special">&nbsp;[<a href="#ref-monkhorst1976special" role="doc-biblioref">1</a>]</span>, after which it’s called the Monkhorst-Pack grid method (MP grid for short). Their idea is that many points in the momentum space can be transformed into each other by the symmetries of the lattice, so the functions on these points will have identical values. After this realization, the task becomes to find the smallest possible number of k-vectors that <em>cannot</em> be transformed into each other and finding how many “relatives” these points have (i.e., into how many grid points in the Brillouin zone can they be transformed by lattice symmetries).</p>
+<p>The first thing to do is to generate a grid that coincides with the symmetries of the reciprocal lattice: Take a D-dimensional crystal with primitive reciprocal lattice vectors <span class="math inline">\(\left\{ \vec{G}_{n} \right\}_{n = 1} ^{D}\)</span> and define a grid spacing in reduced coordinates as:</p>
+<p><span class="math display">\[
+\left\{ u_r \right\}_{r = 1} ^q = \left\{  \frac{2r - q - 1}{2q} \right\}_{r = 1} ^q.
+\]</span></p>
+<p>The grid with correct symmetries will then consist of points in k-space:</p>
+<p><span class="math display">\[
+\vec{k}_{\vec{r}} = \sum_{i = 1} ^D u_{r_i} \vec{G}_i,
+\]</span></p>
+<p>or, in other words, the correct grid is a square/cube grid in reduced coordinates with <span class="math inline">\(q\)</span> points along each axis. Coding this part is trivial:</p>
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">mpspace</span>(q<span class="op">::</span><span class="dt">Integer</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    ((<span class="fl">2</span>r <span class="op">-</span> q <span class="op">-</span> <span class="fl">1</span>) <span class="op">/</span> <span class="fl">2</span>q <span class="cf">for</span> r <span class="op">∈</span> <span class="fl">1</span><span class="op">:</span>q)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>As we will be plotting a bunch in the Brillouin zone, I’ll quickly make a function that plots it, using the <code>wignerseitz</code> method from <code>Brillouin</code>:</p>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">plotbz</span>(c<span class="op">::</span><span class="dt">Crystal</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    gs <span class="op">=</span> c.lattice.G<span class="op">'</span> <span class="op">|&gt;</span> eachcol <span class="op">|&gt;</span> collect</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    c <span class="op">=</span> <span class="fu">wignerseitz</span>(gs)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">plot</span>(c)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+<code>eachcol |&gt; collect</code>ing
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><code>wignerseitz</code> takes the reciprocal basis as a vector of vectors, so I use <code>eachcol</code> to split my <span class="math inline">\(G\)</span> matrix into columns and <code>collect</code> it into a vector.</p>
+</div>
+</div>
+</div>
+<p>And I’ll define a simple square lattice which we’ll use for visualization and demonstration purposes:</p>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>cr <span class="op">=</span> <span class="fu">Crystal</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">Lattice</span>(<span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">90</span>,),</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">UnitCell</span>([<span class="fl">0</span>., <span class="fl">0</span>.,])</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The Brillouin zone of a square lattice is a square, which we can now finally plot along with our MP grid:</p>
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotbz</span>(cr)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>ks <span class="op">=</span> <span class="bu">Iterators</span>.<span class="fu">product</span>(<span class="fu">ntuple</span>(_ <span class="op">-&gt;</span> <span class="fu">mpspace</span>(<span class="fl">4</span>), <span class="fu">ndims</span>(cr))<span class="op">...</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> cr.lattice.G<span class="op">'</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="op">∈</span> ks</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> <span class="fu">collect</span>(k)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> G <span class="op">*</span> k</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scatter!</span>(k<span class="op">...</span>; color<span class="op">=:</span>orange)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="fu">current_figure</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<p><img src="index_files/figure-html/cell-6-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Nothing too exciting. I just create a 1D MP grid with 4 gridpoints and use <code>Iterators.product</code> to make all products of them, forming a 2D square grid (and multiply by <span class="math inline">\(G\)</span> to get k-vectors in physical coords that <code>Brillouin</code> uses).</p>
+</section>
+<section id="sec-cmpm4-pg" class="level3">
+<h3 class="anchored" data-anchor-id="sec-cmpm4-pg">Grouping points</h3>
+<p>It should be obvious, just by inspection, that some of the grid points have to be physically identical due to the crystal’s symmetry. For instance, if a square crystal is rotated by 90 degrees, it will result in the same square crystal, right? So let’s take one of the points and color it blue:</p>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotbz</span>(cr)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>ks <span class="op">=</span> <span class="bu">Iterators</span>.<span class="fu">product</span>(<span class="fu">ntuple</span>(_ <span class="op">-&gt;</span> <span class="fu">mpspace</span>(<span class="fl">4</span>), <span class="fu">ndims</span>(cr))<span class="op">...</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> cr.lattice.G<span class="op">'</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="op">∈</span> ks</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> <span class="fu">collect</span>(k)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> G <span class="op">*</span> k</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scatter!</span>(k<span class="op">...</span>; color<span class="op">=:</span>orange)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> k <span class="op">=</span> G <span class="op">*</span> <span class="fu">collect</span>(<span class="fu">first</span>(ks))</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scatter!</span>(k<span class="op">...</span>; color<span class="op">=:</span>blue)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="fu">current_figure</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<p><img src="index_files/figure-html/cell-7-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<p>You see that it is identical with all the points in the corners, because I cannot tell if someone rotated my sample by 90 degrees when I wasn’t watching. That means that I can calculate the value of whatever depends on the blue point, multiply it by 4, and ignore the other corner points while still getting the same result.</p>
+<p>Identifying the symmetries just by inspection is easy in this case, but it can be a mess in general, so it’s desirable to have the computer do it for us. Programatically identifying all the symmetries of a crystal and the multiplicity of k-points is usually done with the help of <a href="https://spglib.github.io/spglib/index.html">Spglib</a> <span class="citation" data-cites="togo2018texttt">&nbsp;[<a href="#ref-togo2018texttt" role="doc-biblioref">2</a>]</span>, which is a pretty robust library that suffers from one pretty big drawback in that it works only with 3D crystals. I could look up or write a Julia interface to this library, extend our lower-dimensional crystals to 3 dimensions, and then cherry pick just the symmetries that transform within the confines of our actual lattice, but that’s a lot of work which might or might not carry a bunch of strange edge cases and bugs. There is a Julia package called <a href="https://github.com/jerjorg/SymmetryReduceBZ.jl">SymmetryReduceBZ</a>, but after some finagling, I found it a bit too slow and still depends on SciPy, so there’s some foreign function calling happening under the hood.<a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a> So we’ll roll our own.</p>
+<p>A relatively easy way to find the point group of a crystal (all symmetry operations that don’t have translations) is by the lattice point permutation, which I’ll explain in a second. Before we get to the meat of that algorithm, there’s one complication that’s good to take care of: a lattice basis is not unique. We can choose vectors connecting arbitrary lattice points and, as long as they’re linearly independent, they will form a valid basis.<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a> It’s not necessarily the end of the world, but it minimizes the potentiality of weird stuff happening and simplifies the algorithm if we can find a “best” basis through <a href="https://en.wikipedia.org/wiki/Lattice_reduction">lattice reduction</a>. The algorithm for reducing 2D bases was found by Lagrange and Gauss almost 300 years ago, but an efficient and foolproof way of doing this is a hard problem.<a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a> Fortunately, solutions for small-ish number dimensions exist <span class="citation" data-cites="helfrich1985algorithms">&nbsp;[<a href="#ref-helfrich1985algorithms" role="doc-biblioref">3</a>]</span> and have been implemented, which is why we’ll use <code>MinkowskiReduction</code> that has some of the implementations ready for us.</p>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">reduced_basis</span>(c<span class="op">::</span><span class="dt">Crystal{2}</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    vs <span class="op">=</span> <span class="fu">GaussReduce</span>((<span class="fu">eachcol</span>(c.lattice.R))<span class="op">...</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hcat</span>(vs<span class="op">...</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">reduced_basis</span>(c<span class="op">::</span><span class="dt">Crystal{3}</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    vs <span class="op">=</span> <span class="fu">minkReduce</span>((<span class="fu">eachcol</span>(c.lattice.R))<span class="op">...</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">length</span>(vs) <span class="op">&gt;</span> <span class="fl">3</span> <span class="op">&amp;&amp;</span> <span class="cf">return</span> <span class="fu">hcat</span>(vs[<span class="fl">1</span><span class="op">:</span><span class="fl">3</span>]<span class="op">...</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hcat</span>(vs<span class="op">...</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Different dimensionalities of the basis call for different algorithms, so I dispatch on the dimensionality of our <code>Crystal</code> structure and call the appropriate reduction method. For whatever reason <code>minkReduce</code> keeps returning also some extra debug information, so I clip that and return just what I need.</p>
+<p>With that distraction out of the way, we can get to the actual point group identification. This is done in the following way: First, we’ll norm all the basis vectors, <code>ceil</code> them and construct all the linear combinations of ± the vectors.<a href="#fn10" class="footnote-ref" id="fnref10" role="doc-noteref"><sup>10</sup></a> Then we take permutations of pairs from this set stacked into a matrix, which creates a list of operations that map from one grid point to another. All operations that preserve the norms of the basis vectors (checked by comparing the norms before and after applying the operation) and volumes of the unit cell (simply by checking that the determinant of the operation is same as the volume of the unit cell) are, by definition, the point symmetry operations of the lattice. In code version:</p>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">getPG</span>(c<span class="op">::</span><span class="dt">Crystal</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    R <span class="op">=</span> <span class="fu">reduced_basis</span>(c) <span class="op">|&gt;</span> <span class="dt">Matrix</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    D <span class="op">=</span> <span class="fu">ndims</span>(c)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    iR <span class="op">=</span> <span class="fu">inv</span>(R)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    norms <span class="op">=</span> <span class="fu">mapslices</span>(norm, R; dims<span class="op">=</span><span class="fl">1</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    vol <span class="op">=</span> c.lattice.V</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    ls <span class="op">=</span> <span class="fu">ceil</span>.(norms)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    verts <span class="op">=</span> (<span class="bu">Iterators</span>.<span class="fu">product</span>(<span class="fu">ntuple</span>(i <span class="op">-&gt;</span> <span class="op">-</span>ls[i]<span class="op">:</span>ls[i], D)<span class="op">...</span>)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>             <span class="op">.|&gt;</span> collect</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>              <span class="op">|&gt;</span> x <span class="op">-&gt;</span> <span class="fu">reshape</span>(x, <span class="op">:</span>, <span class="fl">1</span>)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>              <span class="op">|&gt;</span> combinedims)[<span class="op">:</span>,<span class="op">:</span>,<span class="fl">1</span>]</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> SMatrix{D,D}[]</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> perm <span class="op">∈</span> <span class="fu">permutations</span>(<span class="fl">1</span><span class="op">:</span><span class="fu">size</span>(verts, <span class="fl">2</span>), D)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>        vs <span class="op">=</span> R <span class="op">*</span> verts[<span class="op">:</span>, perm]</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>        _norms <span class="op">=</span> <span class="fu">mapslices</span>(norm, vs; dims<span class="op">=</span><span class="fl">1</span>)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>        _vol <span class="op">=</span> <span class="fu">abs</span>(<span class="fu">det</span>(vs))</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="fu">all</span>(norms <span class="op">≈</span> _norms) <span class="op">&amp;</span> <span class="fu">all</span>(vol <span class="op">≈</span> _vol)</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>            op <span class="op">=</span> <span class="fu">SMatrix</span><span class="dt">{D,D}</span>(vs <span class="op">*</span> iR)</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="fu">all</span>(op<span class="op">'</span> <span class="op">*</span> op <span class="op">≈</span> I)</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>                <span class="fu">append!</span>(out, [op])</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>            <span class="cf">end</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>    out</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>It outputs an array of static matrices representing the point symmtery operations of our crystal, which is the more complicated half of the puzzle of solving today’s problem.</p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Arrays and <code>StaticArrays</code>
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Everything in the computer needs to be stored somewhere in it’s memory. Simple structures, like numbers, have a memory footprint that’s always known. It doesn’t matter if a variable contains number 0 or 19482, a 32-bit <code>Int32</code> will always take 32 bits in memory. When a method is compiled/run, the (JIT) compiler can imediately ask for appriopriate memory allocation for these objects from the operating system, because it can determine how much it needs just from the code itself. This chunk of memory is allocated staticaly (as in, the memory requirement doesn’t change during the runtime) on what’s called a <a href="https://en.wikipedia.org/wiki/Stack-based_memory_allocation">stack</a>.</p>
+<p>Arrays are a different thing, as they can change their size depending on parameters passed at runtime. Because the complier cannot know (or at least guarantee) their size just from the written code, there needs to be a mechanism for dynamic memory allocation, usually done to the tune of how <a href="https://en.wikipedia.org/wiki/C_dynamic_memory_allocation">C does it</a>. What’s stored on the stack is just a pointer (which has static size that depends on the operating system – these days it’s usually 64 bits) that points to a chunk in large pool of memory called the <a href="https://en.wikipedia.org/wiki/Memory_management#Manual_memory_management">heap</a>. When you create an array, the compiler works with the operating system to allocate some amount of memory (details depend on the implementation) and get the pointer to where the array starts on the heap. Then, if you know the size of the objects stored in the array, let’s say 64-bit integers, you know that the first element is at the pointer, second element is at the pointer + 64 bits, etc (this is why many languages use 0-based indexing for arrays).</p>
+<p>As you can imagine using naked arrays like that comes with a lot of <a href="https://en.wiktionary.org/wiki/footgun">footguns</a> and the programmer, user or even the compiler cannot be trusted to handle them without causing serious bugs. Because of that, most languages try to package the naked arrays into chunkier datatypes that provide more safeguards, such as <a href="https://en.cppreference.com/w/cpp/container/vector">vectors</a> in C++ or the usual arrays in Julia. These <a href="https://en.wikipedia.org/wiki/Runtime_error_detection">safeguards</a> make running your code safer and less error-prone, but also slower.</p>
+<p>That’s where <code>StaticArrays</code> helps us. It provides staticaly sized arrays where their size is part of their type, which allows the compiler to elide many of the runtime checks and gives additional guarantees that enable more optimization and less garbage collection. The static arrays have the same functionality as normal arrays, with all the convenience of using them as matrices and vectors in linear algebra and, potentially, better speed and less memory pressure (although, as with any optimization, don’t do it prematurely – profile first).</p>
+</div>
+</div>
+</div>
+<p>The next step is to carve out only the unique k-vectors out of the grid we generated. These are said to be in the irreducible Brillouin zone, which is called as such because it’s a wedge of the Brillouin zone that cannot be further eliminated by cutting out its symmetrical counterparts. We’re going to just brute-force it by taking all the k-vectors one-by-one and checking if they can be mapped by symmetry operations into another k-vector in the list (I also make a helper function that does approximate comparison to tell if a number is in an array of floats):</p>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">isapproxin</span>(el, itr; kwargs<span class="op">...</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="op">∈</span> itr</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">isapprox</span>(el, i; kwargs<span class="op">...</span>) <span class="op">&amp;&amp;</span> <span class="cf">return</span> <span class="cn">true</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="cn">false</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">_maptoibz</span>(ks, c<span class="op">::</span><span class="dt">Crystal</span>, pg; kwargs<span class="op">...</span>)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    D <span class="op">=</span> <span class="fu">ndims</span>(c)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> SVector{D}[]</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k <span class="op">∈</span> ks</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>        k <span class="op">=</span> <span class="fu">SVector</span><span class="dt">{D}</span>(k)</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>        mks <span class="op">=</span> <span class="fu">map</span>(m <span class="op">-&gt;</span> m <span class="op">*</span> k, pg)</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>        isin <span class="op">=</span> <span class="cn">false</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> mk <span class="op">∈</span> mks</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="fu">isapproxin</span>(mk, out)</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>                isin <span class="op">=</span> <span class="cn">true</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>                <span class="cf">break</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>            <span class="cf">end</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> !isin</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>            <span class="fu">push!</span>(out, k)</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>    out</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">_maptoibz</span>(ks, c; kwargs<span class="op">...</span>)</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">_maptoibz</span>(ks, c, <span class="fu">getPG</span>(c))</span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This operation will usually not be ran more than once per calculation, but there might be circumstances where you want to pre-calculate the point symmtery group, so I use dynamic dispatch to provide that option. To demonstrate, let’s plot a denser MP grid and show which k-vectors survive the symmetry reduction:</p>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotbz</span>(cr)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>ks <span class="op">=</span> <span class="bu">Iterators</span>.<span class="fu">product</span>(<span class="fu">ntuple</span>(_ <span class="op">-&gt;</span> <span class="fu">mpspace</span>(<span class="fl">54</span>), <span class="fu">ndims</span>(cr))<span class="op">...</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>ksInIBZ <span class="op">=</span> <span class="fu">_maptoibz</span>(ks, cr)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> cr.lattice.G<span class="op">'</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="op">∈</span> ks</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> G <span class="op">*</span> <span class="fu">collect</span>(k)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scatter!</span>(k<span class="op">...</span>; color<span class="op">=:</span>orange)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="op">∈</span> ksInIBZ</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> G <span class="op">*</span> <span class="fu">collect</span>(k)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scatter!</span>(k<span class="op">...</span>; color<span class="op">=:</span>black)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="fu">current_figure</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<p><img src="index_files/figure-html/cell-11-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Now you can see the benefit of what we’re trying to do. The only unique points in the Brillouin zone are colored black in the above figure, clearly showing that we can cut the computational time and memory load by a factor of 8 (might be more or less, depending on the symmetry of the crystal). It doesn’t change the scaling of any of our algorithms, but having a calculation run for 0.13 seconds instead of 1 second can make a big difference when you need to do it a million times. It’s not the most efficient way to do the symmetry reduction becase it has quadratic scaling with the number of k-vectors (each vector is compared to almost each other). There are clever ways to map the real-number coordinates to integers, after which the whole set of k-vectors can be converted to a dictionary, which makes identification of unique vectors much faster, but that takes too much effort for something that’s going to be run once during the initialization of our calculation.</p>
+<p>The last step is determining the multiplicity of the unique vectors. That we’ll, once again, brute-force by taking each vector in the irreducible Brillouin zone, apply every symmetry operation and count how many times it maps to a different vector in the full Brillouin zone (this time I make a helper function to tell if an element of an array is approximatelly unique):</p>
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">approxunique</span>(itr; kwargs<span class="op">...</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> <span class="fu">Vector</span><span class="dt">{eltype(itr)}</span>()</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">push!</span>(out, itr[<span class="fl">1</span>])</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> itrel <span class="op">∈</span> itr</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="fu">map</span>(x <span class="op">-&gt;</span> !<span class="fu">isapprox</span>(itrel, x; kwargs<span class="op">...</span>), out) <span class="op">|&gt;</span> all</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>            <span class="fu">push!</span>(out, itrel)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    out</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">ibzωk</span>(c<span class="op">::</span><span class="dt">Crystal</span>, q<span class="op">::</span><span class="dt">Int</span>, pg)</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> <span class="fu">ndims</span>(c)</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    ks <span class="op">=</span> <span class="bu">Iterators</span>.<span class="fu">product</span>(<span class="fu">ntuple</span>(_ <span class="op">-&gt;</span> <span class="fu">mpspace</span>(q), n)<span class="op">...</span>)</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    ks <span class="op">=</span> <span class="fu">_maptoibz</span>(ks, c)</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    ωs <span class="op">=</span> <span class="fu">map</span>(ks) <span class="cf">do</span> k</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>        <span class="fu">map</span>(p <span class="op">-&gt;</span> p <span class="op">*</span> k, pg) <span class="op">|&gt;</span> approxunique <span class="op">|&gt;</span> length</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    (ωs, ks)</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">ibzωk</span>(c<span class="op">::</span><span class="dt">Crystal</span>, q<span class="op">::</span><span class="dt">Int</span>)</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ibzωk</span>(c<span class="op">::</span><span class="dt">Crystal</span>, q<span class="op">::</span><span class="dt">Int</span>, <span class="fu">getPG</span>(c))</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We feed the function the <code>Crystal</code> itself and the number of k-vectors along an axis <code>q</code>, and receive a tupple of multiplicities <span class="math inline">\(\omega\)</span> and the corresponding vectors from the irreducible wedge. To check, let’s go back to the sparse grid:</p>
+<div class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotbz</span>(cr)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>ks <span class="op">=</span> <span class="bu">Iterators</span>.<span class="fu">product</span>(<span class="fu">ntuple</span>(_ <span class="op">-&gt;</span> <span class="fu">mpspace</span>(<span class="fl">4</span>), <span class="fu">ndims</span>(cr))<span class="op">...</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>(ωs, kibz) <span class="op">=</span> <span class="fu">ibzωk</span>(cr, <span class="fl">4</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>G <span class="op">=</span> cr.lattice.G<span class="op">'</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="op">∈</span> ks</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> G <span class="fu">*collect</span>(k)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scatter!</span>(k<span class="op">...</span>; color<span class="op">=:</span>orange)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k <span class="op">∈</span> kibz</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    k <span class="op">=</span> G <span class="fu">*collect</span>(k)</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scatter!</span>(k<span class="op">...</span>; color<span class="op">=:</span>black)</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"ωs: "</span>, ωs)</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">"ks: "</span>, kibz)</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="fu">current_figure</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ωs: [4, 8, 4]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ks: SVector{2}[[-0.375, -0.375], [-0.125, -0.375], [-0.125, -0.125]]</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="13">
+<p><img src="index_files/figure-html/cell-13-output-3.png" class="img-fluid"></p>
+</div>
+</div>
+<p>And it is, indeed, correct. The two vectors along the diagonal have a multiplicity of 4, because they map into other diagonals by the 4-rotational symmetry of the square lattice. The other one also has additional reflection symmetry along the diagonals, so it has multiplicity of 8.</p>
+<p>The last thing is to provide a method that evaluates the integral across the Brillouin zone, and we’re done with the generic problem:</p>
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">∫bz</span>(f<span class="op">::</span><span class="dt">Function</span>, c<span class="op">::</span><span class="dt">Crystal</span>, ωks)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    ωs, ks <span class="op">=</span> ωks</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mapreduce</span>(x <span class="op">-&gt;</span> x[<span class="fl">2</span>] <span class="op">*</span> <span class="fu">f</span>(x[<span class="fl">1</span>]), <span class="op">+</span>, <span class="fu">zip</span>(<span class="fu">eachcol</span>(ks), ωs)) <span class="op">/</span> <span class="fu">length</span>(ks)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">∫bz</span>(f<span class="op">::</span><span class="dt">Function</span>, c<span class="op">::</span><span class="dt">Crystal</span>, q<span class="op">::</span><span class="dt">Int</span>)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">∫bz</span>(f<span class="op">::</span><span class="dt">Function</span>, c<span class="op">::</span><span class="dt">Crystal</span>, q<span class="op">::</span><span class="dt">Int</span>, <span class="fu">ibzωk</span>(c, q))</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Easy as that. I skip the normalization to appropriate volume, because that might depend on the convention used and it often is irrelevant. We could do the density of states using this generic method, but it’s a common enough and specific problem for us to provide that functionality explicitly, for ease of use and efficiency…</p>
+</section>
+<section id="broad-states" class="level3">
+<h3 class="anchored" data-anchor-id="broad-states">Broad States</h3>
+<p>If we want to go with the real definition of density of states, we’ll just count the number of states at each energy, i.e.,</p>
+<p><span class="math display">\[
+N(\varepsilon) = \sum _{\vec{k} \in BZ, n} \delta \left( \varepsilon - \varepsilon_n (\vec{k}) \right).
+\]</span></p>
+<p>In the theoretical limit of a infinitely large crystal, <span class="math inline">\(N(\varepsilon)\)</span> will be a continuous function of energy because there will a continuous set of k-vectors in the crystal. In a finite crystal, the there’s only a finite amount of k-vectors in the Brillouin zone and the density of states becomes discontinuous, and usually will have value of at best ~1 (the chances of two discrete states having the same energy are slim). That is a problem, because the numerical calculation will then not correspond to what we calculate analytically or measure. One way to solve this is to make <span class="math inline">\(N(\varepsilon)\)</span> a histogram and interpolate the values of the bins (the way it’s frequently done).</p>
+<p>Another way is to get a little inspiration from experimental reality. A typical measurement of density of states is done by some form of spectroscopy where we measure a property proportional to the DOS at a given energy. In the same way that an emission line of a single level in atomic gasses <a href="https://en.wikipedia.org/wiki/Spectral_line_shape">is not a infinitely narrow</a>, there will be some spectral broadening happening in the measurement of our solid – the spectral line shape will turn into a <a href="https://en.wikipedia.org/wiki/Cauchy_distribution">Lorentzian</a> and there will be a small contribution to DOS even outside of nominally occupied levels. The nice thing is, that the delta function can be represented as a limit of the Lorentzian:</p>
+<p><span class="math display">\[
+\delta(t) = \lim _{\epsilon \rightarrow 0} \frac{1}{\pi} \frac{\epsilon ^2}{\epsilon ^2 + t^2},
+\]</span></p>
+<p>From which we can write a sligthly different formula for the density of states:</p>
+<p><span class="math display">\[
+N(\varepsilon) = \frac{1}{\pi} \lim _{\epsilon \rightarrow 0} \sum _{\vec{k} \in BZ, n} \frac{\epsilon ^2}{ \left( \varepsilon - \varepsilon_n (\vec{k}) \right)^2 + \epsilon ^2}.
+\]</span></p>
+<p>Forgeting the limit part of the equation, <span class="math inline">\(N(\varepsilon)\)</span> will be continuous for any non-zero value of <span class="math inline">\(\epsilon\)</span> and, should we have a good handle on the broadening, potentially even more physical.</p>
+<p>Ok, let’s get to coding it up. At <a href="../../posts/cmpm3/#sec-cmpm3-interface">the end of the last post</a>, I drafted the idea of having some nice, user-friendly interface that would abstract away all the math and do most of the boiler plate. That lives in the <a href="https://github.com/tpolakovic/SimpleQuantum/blob/main/src/interface.jl"><code>interface.jl</code></a> file. It has a few abstract types, like <code>ReciprocalHamiltonian</code> that demands it’s concrete implementations to be applicable to k-vectors. It also has a bunch of problem types like <code>ReciprocalBandProblem</code> that set up the necessary calculations. All the problem types should implement a <code>solve</code> method that then actually runs the problem calculation and outputs some solution type, which can then be processed as necessary. Let’s start from the end of this process – the solution:</p>
+<div class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> DOSSolution</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    es</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    evals</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    nks</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    broadening</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> (d<span class="op">::</span><span class="dt">DOSSolution</span>)(E)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    ϵ <span class="op">=</span> d.broadening</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    (<span class="fl">1</span><span class="op">/</span>(<span class="cn">π</span> <span class="op">*</span> d.nks)) <span class="op">*</span> <span class="fu">map</span>(d.evals) <span class="cf">do</span> ens</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">map</span>(ens) <span class="cf">do</span> En</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>            ϵ <span class="op">/</span> ((E <span class="op">-</span> En)<span class="op">^</span><span class="fl">2</span> <span class="op">+</span> ϵ<span class="op">^</span><span class="fl">2</span>)</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span> <span class="op">|&gt;</span> sum</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span> <span class="op">|&gt;</span> sum</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>As you can see from the above equation, all you need is the eigenenergies <code>evals</code> at k-points in the Brillouin zone (of which we just need the number <code>nks</code>) and the line <code>broadening</code>. Density of states at any energy can then be simply calculated by running the sum over states, which is what the defined method does. Just to preserve the setup-&gt;solve-&gt;process/plot pipeline, I also include the energies <code>es</code> at which we want to evaluate the density of states.</p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Making structures callable
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>In principle, the above method could have been handled by a closure, where I would do something like <code>dos(E, d::DOSSolution) = E -&gt; ...</code>, but closures like this are unwieldy. Instead you can use Julia’s option to make a type callable by doing <code>function (foo::SomeStruct)(x) ... end</code>, which will then allow you to use an instance of a type as a function.</p>
+</div>
+</div>
+</div>
+<p>Now to get to that solution, we need the corresponding problem container type and it’s <code>solve</code> method:</p>
+<div class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> ReciprocalDOSProblem</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    h</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    dos</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">solve</span>(dp<span class="op">::</span><span class="dt">ReciprocalDOSProblem</span>)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    h <span class="op">=</span> dp.h</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    dos <span class="op">=</span> dp.dos</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    q <span class="op">=</span> dos.nq</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    ϵ <span class="op">=</span> dp.dos.broadening</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    𝑛 <span class="op">=</span> <span class="fu">ndims</span>(h)</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    ks <span class="op">=</span> <span class="fu">reshape</span>(<span class="bu">Iterators</span>.<span class="fu">product</span>(<span class="fu">ntuple</span>(_ <span class="op">-&gt;</span> <span class="fu">mpspace</span>(q), 𝑛)<span class="op">...</span>) <span class="op">|&gt;</span> collect, <span class="fl">1</span>, <span class="op">:</span>)</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    nks <span class="op">=</span> <span class="fu">length</span>(ks)</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    hs <span class="op">=</span> <span class="fu">h</span>.(ks)</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="fu">typeof</span>(<span class="fu">first</span>(hs)) <span class="op">&lt;:</span><span class="dt"> Tuple</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>        es <span class="op">=</span> <span class="fu">map</span>(h <span class="op">-&gt;</span> <span class="fu">eigen</span>(h<span class="op">...</span>).values, hs)</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>        es <span class="op">=</span> <span class="fu">map</span>(h <span class="op">-&gt;</span> <span class="fu">eigen</span>(h).values, hs)</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">DOSSolution</span>(dos.es, es, nks, ϵ)</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The problem container consists of the Hamiltonian to be solved and a helper type <code>DOS</code> that actually contains the problem definition. This type is also what’s to be used to assemble the problem itself:</p>
+<div class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> DOS</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    es</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    broadening</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    nq</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">function</span> <span class="fu">DOS</span>(es<span class="op">::</span><span class="dt">Vector{&lt;:Real}</span>, broadening<span class="op">::</span><span class="dt">Real</span>, nq<span class="op">::</span><span class="dt">Integer</span>)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">new</span>(es, broadening, nq)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">DOS</span>(es<span class="op">::</span><span class="dt">Vector{&lt;:Real}</span>, nq<span class="op">::</span><span class="dt">Integer</span>)</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    broadening <span class="op">=</span> <span class="fu">√</span>(<span class="fu">minimum</span>(<span class="fu">diff</span>(es)))<span class="op">/</span><span class="fl">50</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">DOS</span>(es, broadening, nq)</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">DOS</span>(es<span class="op">::</span><span class="dt">Vector{&lt;:Quantity}</span>, broadening<span class="op">::</span><span class="dt">T</span>, nq<span class="op">::</span><span class="dt">Integer</span>) <span class="kw">where</span> T <span class="op">&lt;:</span><span class="dt"> Quantity</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>    es <span class="op">=</span> Unitful.<span class="fu">NoUnits</span>.(es <span class="op">./</span> Ha)</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>    broadening <span class="op">=</span> Unitful.<span class="fu">NoUnits</span>(broadening <span class="op">/</span> Ha)</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">DOS</span>(es, broadening, nq)</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">DOS</span>(es<span class="op">::</span><span class="dt">Vector{&lt;:Quantity}</span>, nq<span class="op">::</span><span class="dt">Integer</span>)</span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>    es <span class="op">=</span> Unitful.<span class="fu">NoUnits</span>.(es <span class="op">./</span> Ha)</span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">DOS</span>(es, nq)</span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> (d<span class="op">::</span><span class="dt">DOS</span>)(h<span class="op">::</span><span class="dt">SimpleQuantum.ReciprocalHamiltonian</span>)</span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a><span class="fu">ReciprocalDOSProblem</span>(h, d)</span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Where <code>es</code> are the energies over which we want to evaluate the density of states, <code>broadening</code> is pretty self-explanatory by now, and <code>nq</code> is the number of points on the (symmetry-reduced) k-space space grid that we’ve been working on earlier today. To create your problem, you first make an instance of <code>DOS</code><a href="#fn11" class="footnote-ref" id="fnref11" role="doc-noteref"><sup>11</sup></a> and apply it to a Hamiltonian.</p>
+<p>Everything is ready, the last thing that’s missing is the plotting functionality, which can now be implemented very easily for our solution type:</p>
+<div class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">plotSolution</span>(s<span class="op">::</span><span class="dt">DOSSolution</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    fig <span class="op">=</span> <span class="fu">Figure</span>()</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    ax <span class="op">=</span> <span class="fu">Axis</span>(fig)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    ax.xlabel <span class="op">=</span> <span class="st">"E [Ha]"</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    ax.ylabel <span class="op">=</span> <span class="st">"DOS [a.u.]"</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">lines!</span>(s.es, <span class="fu">s</span>.(s.es))</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hidexdecorations!</span>(ax, ticks<span class="op">=</span><span class="cn">false</span>, ticklabels<span class="op">=</span><span class="cn">false</span>, label<span class="op">=</span><span class="cn">false</span>)</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hideydecorations!</span>(ax, label<span class="op">=</span><span class="cn">false</span>)</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ylims!</span>(low <span class="op">=</span> <span class="fl">0</span>)</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    fig[<span class="fl">1</span>,<span class="fl">1</span>] <span class="op">=</span> ax</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    fig</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span>;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let’s try it out: First a model system – graphene:</p>
+<div class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>graphene <span class="op">=</span> <span class="fu">Crystal</span>(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">Lattice</span>(<span class="fl">2.468</span>Å, <span class="fl">2.468</span>Å, <span class="fl">120</span>),</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">UnitCell</span>(<span class="op">:</span>C, [<span class="fl">2</span><span class="op">/</span><span class="fl">3</span>, <span class="fl">1</span><span class="op">/</span><span class="fl">3</span>], [<span class="fl">1</span><span class="op">/</span><span class="fl">3</span>, <span class="fl">2</span><span class="op">/</span><span class="fl">3</span>])</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Then a method to find energies – tight binding:</p>
+<div class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>grhops <span class="op">=</span> <span class="fu">Hoppings</span>(graphene)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> hop <span class="op">∈</span> SimpleQuantum.<span class="fu">unique_neighbors</span>(graphene)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">addhop!</span>(grhops, <span class="op">-</span><span class="fl">2.8</span>eV, hop.i, hop.j, hop.δ)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>grH <span class="op">=</span> <span class="fu">TightBindingHamiltonian</span>(grhops);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The problem statement – Density of states over range of 1 Ha with 400x400 k-space grid:</p>
+<div class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>grdos <span class="op">=</span> <span class="fu">DOS</span>([i <span class="op">*</span> Ha for i <span class="op">∈</span> <span class="op">-</span><span class="fl">0.5</span><span class="op">:</span><span class="fl">0.005</span><span class="op">:</span><span class="fl">0.5</span>], <span class="fl">400</span>);</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>And, finally, the pipeline:</p>
+<div class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>grH <span class="op">|&gt;</span> grdos <span class="op">|&gt;</span> solve <span class="op">|&gt;</span> plotSolution</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="22">
+<p><img src="index_files/figure-html/cell-22-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Beautiful. The nice thing about this setup is that all computation is defered until the call to <code>solve</code>, so you can do everything interactively in the REPL without having to wait for anything and then just sending it at the end.</p>
+<p>The density of states plot <a href="https://i.stack.imgur.com/P0Yrw.jpg">looks</a> like it’s supposed to<a href="#fn12" class="footnote-ref" id="fnref12" role="doc-noteref"><sup>12</sup></a>. To better understand what’s going on there, let’s plot the band structure again:</p>
+<div class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>kpath <span class="op">=</span> <span class="fu">ReciprocalPath</span>([</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>           <span class="op">:</span>K <span class="op">=&gt;</span> [<span class="fl">1</span><span class="op">/</span><span class="fl">3</span>,<span class="fl">1</span><span class="op">/</span><span class="fl">3</span>],</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>           <span class="op">:</span>Γ <span class="op">=&gt;</span> [<span class="fl">0</span>,<span class="fl">0</span>],</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>           <span class="op">:</span>M <span class="op">=&gt;</span> [<span class="fl">1</span><span class="op">/</span><span class="fl">2</span>,<span class="fl">0</span>],</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>           <span class="op">:</span>K <span class="op">=&gt;</span> [<span class="fl">1</span><span class="op">/</span><span class="fl">3</span>,<span class="fl">1</span><span class="op">/</span><span class="fl">3</span>]</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>], <span class="fl">0.005</span>)</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>grH <span class="op">|&gt;</span> kpath <span class="op">|&gt;</span> SimpleQuantum.solve <span class="op">|&gt;</span> SimpleQuantum.plotSolution</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="23">
+<p><img src="index_files/figure-html/cell-23-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<p>The peaks of the density of states are at around 0.1 Ha, which is where the bands get flat around the M-points. The flatter the band at some energy, the more states are around it<a href="#fn13" class="footnote-ref" id="fnref13" role="doc-noteref"><sup>13</sup></a>, which increases the contribution to DOS. At higher energies, there’s nothing because the bands have limited width and at lower energies, the DOS goes continuously to zero as it approaches the K-point.<a href="#fn14" class="footnote-ref" id="fnref14" role="doc-noteref"><sup>14</sup></a> In an insulator, there would be a finite range around the fermi energy where the DOS is zero (the band-gap), but graphene is a bit special in that it has a “zero-width” band-gap where there are no states only at exactly E = 0.</p>
+<hr>
+<p>And that’s all for today. A bit of a shorter post, but that’s probably for the best. We’ll stick to single-particle methods for a tiny bit longer, where we’ll revisit the nearly free electron method in context of transferable pseudopotentials (and maybe I’ll add one more computational method), but after that, we’ll have to drop this simplification and start working on many-particle systems with all the heartache that brings.</p>
+
+
+
+</section>
+
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body" role="doc-bibliography">
+<div id="ref-monkhorst1976special" class="csl-entry" role="doc-biblioentry">
+<div class="csl-left-margin">[1] </div><div class="csl-right-inline">H. J. Monkhorst and J. D. Pack, <em>Special Points for Brillouin-Zone Integrations</em>, Physical Review B <strong>13</strong>, 5188 (1976).</div>
+</div>
+<div id="ref-togo2018texttt" class="csl-entry" role="doc-biblioentry">
+<div class="csl-left-margin">[2] </div><div class="csl-right-inline">A. Togo and I. Tanaka, arXiv Preprint arXiv:1808.01590 (2018).</div>
+</div>
+<div id="ref-helfrich1985algorithms" class="csl-entry" role="doc-biblioentry">
+<div class="csl-left-margin">[3] </div><div class="csl-right-inline">B. Helfrich, <em>Algorithms to Construct Minkowski Reduced and Hermite Reduced Lattice Bases</em>, Theoretical Computer Science <strong>41</strong>, 125 (1985).</div>
+</div>
+<div id="ref-hobson1953statistics" class="csl-entry" role="doc-biblioentry">
+<div class="csl-left-margin">[4] </div><div class="csl-right-inline">J. Hobson and W. Nierenberg, <em>The Statistics of a Two-Dimensional, Hexagonal Net</em>, Physical Review <strong>89</strong>, 662 (1953).</div>
+</div>
+</div></section><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>Can’t entirely say I blame them.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>See the <a href="../../posts/cmpm3/#sec-cmpm3-groups">previous discussion</a> on real and reciprocal spaces in crystals<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>Again, see the <a href="../../posts/cmpm3/#sec-cmpm3-groups">previous discussion</a> – told you it’s gonna be important.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p>If this is new to you, googling some <a href="https://scholar.harvard.edu/files/schwartz/files/5-thermodynamics.pdf">lecture notes</a> or procuring a <a href="https://books.google.com/books/about/Fundamentals_of_Statistical_and_Thermal.html?id=ObsbAAAAQBAJ">book</a> is probably a good idea.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p>Three, if we count the empty lattice approximation.<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p>Tens of thousands of times in some cases.<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn7"><p>And just using that would go against the education and practice purposes of what I’m trying to do here.<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn8"><p>We’ve encountered that <a href="../../posts/cmpm3/#sec-cmpm3-groups">before</a> in case of graphene, where there are two common choises of the basis.<a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn9"><p>As a matter of fact, it’s <a href="https://en.wikipedia.org/wiki/NP-hardness">NP-hard</a> for general dimensionality.<a href="#fnref9" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn10"><p>We basically take all the reduced grid points that are within the integer-sized rectangle/box spanned the basis vectors.<a href="#fnref10" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn11"><p>I give the option where it automatically tries to determine the broadening parameter. How well that works is up to debate…<a href="#fnref11" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn12"><p>If you want to compare to analytical calculation, check out reference <span class="citation" data-cites="hobson1953statistics">&nbsp;[<a href="#ref-hobson1953statistics" role="doc-biblioref">4</a>]</span>.<a href="#fnref12" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn13"><p>The pathological case being a fully flat band where <em>all</em> states are of the same energy.<a href="#fnref13" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn14"><p>Doesn’t get entirely to zero because of the broadening parameter.<a href="#fnref14" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+      <div class="nav-footer-center">© Copyright 2023, Tomas Polakovic. Except where otherwise noted, all text and images licensed CC-BY-NC 4.0.</div>
+  </div>
+</footer>
+
+
+
+</body></html>
