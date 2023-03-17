@@ -886,7 +886,7 @@ Note
 <p>With that done, we can access the primitive vector matrix that, in this case, does not form an orthogonal basis, as advertised earlier:</p>
 <div class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb14-1">graphene.lattice.R</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="154">
+<div class="cell-output cell-output-display" data-execution_count="14">
 <pre><code>2×2 Matrix{Float64}:
   4.03901  0.0
  -2.33192  4.66384</code></pre>
@@ -894,7 +894,7 @@ Note
 </div>
 <div class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb16-1">graphene.lattice.R[<span class="op" style="color: #5E5E5E;">:</span>,<span class="fl" style="color: #AD0000;">1</span>] <span class="op" style="color: #5E5E5E;">⋅</span> graphene.lattice.R[<span class="op" style="color: #5E5E5E;">:</span>,<span class="fl" style="color: #AD0000;">2</span>] <span class="op" style="color: #5E5E5E;">!=</span> <span class="fl" style="color: #AD0000;">0</span></span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="155">
+<div class="cell-output cell-output-display" data-execution_count="15">
 <pre><code>true</code></pre>
 </div>
 </div>
@@ -910,7 +910,7 @@ Note
 <span id="cb18-8">fig2ds[<span class="fl" style="color: #AD0000;">1</span>,<span class="fl" style="color: #AD0000;">2</span>] <span class="op" style="color: #5E5E5E;">=</span> axhbns</span>
 <span id="cb18-9"></span>
 <span id="cb18-10"><span class="fu" style="color: #4758AB;">current_figure</span>()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="156">
+<div class="cell-output cell-output-display" data-execution_count="16">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-16-output-1.png" class="img-fluid"></p>
 </div>
 </div>
@@ -950,7 +950,7 @@ Note
 <span id="cb20-8">fig3d[<span class="fl" style="color: #AD0000;">1</span>,<span class="fl" style="color: #AD0000;">2</span>] <span class="op" style="color: #5E5E5E;">=</span> axds_single</span>
 <span id="cb20-9"></span>
 <span id="cb20-10"><span class="fu" style="color: #4758AB;">current_figure</span>()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="158">
+<div class="cell-output cell-output-display" data-execution_count="18">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-18-output-1.png" class="img-fluid"></p>
 </div>
 </div>
@@ -1067,7 +1067,7 @@ Note
 <span id="cb24-19">fig_1D[<span class="fl" style="color: #AD0000;">1</span>,<span class="fl" style="color: #AD0000;">1</span>] <span class="op" style="color: #5E5E5E;">=</span> ax_1D2</span>
 <span id="cb24-20"></span>
 <span id="cb24-21"><span class="fu" style="color: #4758AB;">current_figure</span>()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="162">
+<div class="cell-output cell-output-display" data-execution_count="22">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-22-output-1.png" class="img-fluid"></p>
 </div>
 </div>
@@ -1116,7 +1116,7 @@ Note
 <span id="cb28-13"></span>
 <span id="cb28-14">fig_Al_el[<span class="fl" style="color: #AD0000;">1</span>,<span class="fl" style="color: #AD0000;">1</span>] <span class="op" style="color: #5E5E5E;">=</span> ax_Al_el</span>
 <span id="cb28-15"><span class="fu" style="color: #4758AB;">current_figure</span>()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="166">
+<div class="cell-output cell-output-display" data-execution_count="26">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-26-output-1.png" class="img-fluid"></p>
 </div>
 </div>
@@ -1196,7 +1196,7 @@ On extra output of <code>kpath</code>
 <span id="cb31-17">fig_1D_nf[<span class="fl" style="color: #AD0000;">1</span>,<span class="fl" style="color: #AD0000;">1</span>] <span class="op" style="color: #5E5E5E;">=</span> ax_1D_nf</span>
 <span id="cb31-18"></span>
 <span id="cb31-19"><span class="fu" style="color: #4758AB;">current_figure</span>()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="169">
+<div class="cell-output cell-output-display" data-execution_count="29">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-29-output-1.png" class="img-fluid"></p>
 </div>
 </div>
@@ -1219,7 +1219,7 @@ On extra output of <code>kpath</code>
 <span id="cb35-2">ax_Al <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">Axis</span>(fig_Al, title<span class="op" style="color: #5E5E5E;">=</span><span class="st" style="color: #20794D;">"Aluminum"</span>)</span>
 <span id="cb35-3">ax_Al.xticks <span class="op" style="color: #5E5E5E;">=</span> ([p.second for p <span class="op" style="color: #5E5E5E;">∈</span> Alks.ppoints], </span>
 <span id="cb35-4">                [<span class="fu" style="color: #4758AB;">string</span>(p.first) for p <span class="op" style="color: #5E5E5E;">∈</span> Alks.ppoints])</span>
-<span id="cb35-5">ax_Al.yticks <span class="op" style="color: #5E5E5E;">=</span> <span class="fl" style="color: #AD0000;">0</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">10</span></span>
+<span id="cb35-5">ax_Al.yticks <span class="op" style="color: #5E5E5E;">=</span> <span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">0.2</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">0.1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">0.4</span></span>
 <span id="cb35-6">ax_Al.ylabel <span class="op" style="color: #5E5E5E;">=</span> <span class="st" style="color: #20794D;">"E [Ha]"</span></span>
 <span id="cb35-7"></span>
 <span id="cb35-8"><span class="fu" style="color: #4758AB;">ylims!</span>(ax_Al, (<span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">0.2</span>,<span class="fl" style="color: #AD0000;">0.4</span>))</span>
@@ -1231,7 +1231,7 @@ On extra output of <code>kpath</code>
 <span id="cb35-14"></span>
 <span id="cb35-15">fig_Al[<span class="fl" style="color: #AD0000;">1</span>,<span class="fl" style="color: #AD0000;">1</span>] <span class="op" style="color: #5E5E5E;">=</span> ax_Al</span>
 <span id="cb35-16"><span class="fu" style="color: #4758AB;">current_figure</span>()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="173">
+<div class="cell-output cell-output-display" data-execution_count="33">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-33-output-1.png" class="img-fluid"></p>
 </div>
 </div>
@@ -1466,7 +1466,7 @@ Note
 <span id="cb48-13"></span>
 <span id="cb48-14">fig_gr[<span class="fl" style="color: #AD0000;">1</span>,<span class="fl" style="color: #AD0000;">1</span>] <span class="op" style="color: #5E5E5E;">=</span> ax_gr</span>
 <span id="cb48-15"><span class="fu" style="color: #4758AB;">current_figure</span>()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="186">
+<div class="cell-output cell-output-display" data-execution_count="46">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-46-output-1.png" class="img-fluid"></p>
 </div>
 </div>
@@ -1512,7 +1512,7 @@ Note
 <div class="cell" data-execution_count="49">
 <div class="sourceCode cell-code" id="cb52" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb52-1">foo <span class="op" style="color: #5E5E5E;">=</span> [<span class="fu" style="color: #4758AB;">ψ2p</span>([i,j,k], <span class="fl" style="color: #AD0000;">0</span>) <span class="op" style="color: #5E5E5E;">|&gt;</span> abs2 for i <span class="op" style="color: #5E5E5E;">∈</span> <span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">3</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">0.1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">3</span>, j <span class="op" style="color: #5E5E5E;">∈</span> <span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">3</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">0.1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">3</span>, k <span class="op" style="color: #5E5E5E;">∈</span> <span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">5</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">0.1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">5</span>]</span>
 <span id="cb52-2"><span class="fu" style="color: #4758AB;">contour</span>(foo, levels<span class="op" style="color: #5E5E5E;">=</span><span class="fl" style="color: #AD0000;">1</span>)</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="190">
+<div class="cell-output cell-output-display" data-execution_count="50">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-50-output-1.png" class="img-fluid"></p>
 </div>
 </div>
@@ -1520,7 +1520,7 @@ Note
 <div class="cell" data-execution_count="50">
 <div class="sourceCode cell-code" id="cb53" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb53-1">foo <span class="op" style="color: #5E5E5E;">=</span> [<span class="fu" style="color: #4758AB;">ψ2p</span>([i,j,k], <span class="fl" style="color: #AD0000;">1</span>) <span class="op" style="color: #5E5E5E;">|&gt;</span> abs2 for i <span class="op" style="color: #5E5E5E;">∈</span> <span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">5</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">0.1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">5</span>, j <span class="op" style="color: #5E5E5E;">∈</span> <span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">5</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">0.1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">5</span>, k <span class="op" style="color: #5E5E5E;">∈</span> <span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">4</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">0.1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">4</span>]</span>
 <span id="cb53-2"><span class="fu" style="color: #4758AB;">contour</span>(foo, levels<span class="op" style="color: #5E5E5E;">=</span><span class="fl" style="color: #AD0000;">1</span>)</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="191">
+<div class="cell-output cell-output-display" data-execution_count="51">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-51-output-1.png" class="img-fluid"></p>
 </div>
 </div>
@@ -1545,7 +1545,7 @@ Note
 <div class="cell" data-execution_count="52">
 <div class="sourceCode cell-code" id="cb55" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb55-1">foox <span class="op" style="color: #5E5E5E;">=</span> [<span class="fu" style="color: #4758AB;">ψ2px</span>([i,j,k]) <span class="op" style="color: #5E5E5E;">|&gt;</span> abs2 for i <span class="op" style="color: #5E5E5E;">∈</span> <span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">5</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">0.1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">5</span>, j <span class="op" style="color: #5E5E5E;">∈</span> <span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">3</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">0.1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">3</span>, k <span class="op" style="color: #5E5E5E;">∈</span> <span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">3</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">0.1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">3</span>]</span>
 <span id="cb55-2"><span class="fu" style="color: #4758AB;">contour</span>(foox, levels<span class="op" style="color: #5E5E5E;">=</span><span class="fl" style="color: #AD0000;">1</span>)</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="193">
+<div class="cell-output cell-output-display" data-execution_count="53">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-53-output-1.png" class="img-fluid"></p>
 </div>
 </div>
@@ -1566,7 +1566,7 @@ Note
 <span id="cb56-13"><span class="fu" style="color: #4758AB;">contour!</span>(foos, levels<span class="op" style="color: #5E5E5E;">=</span>[<span class="fl" style="color: #AD0000;">4e-3</span>])</span>
 <span id="cb56-14"><span class="fu" style="color: #4758AB;">hidedecorations!</span>(hybp, label<span class="op" style="color: #5E5E5E;">=</span><span class="cn" style="color: #8f5902;">false</span>)</span>
 <span id="cb56-15"><span class="fu" style="color: #4758AB;">current_figure</span>()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="194">
+<div class="cell-output cell-output-display" data-execution_count="54">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-54-output-1.png" class="img-fluid"></p>
 </div>
 </div>
@@ -1592,7 +1592,7 @@ Note
 <span id="cb57-18"><span class="fu" style="color: #4758AB;">contour!</span>(fooz, levels<span class="op" style="color: #5E5E5E;">=</span>[<span class="fl" style="color: #AD0000;">5e-3</span>])</span>
 <span id="cb57-19"><span class="fu" style="color: #4758AB;">hidedecorations!</span>(hybp, label<span class="op" style="color: #5E5E5E;">=</span><span class="cn" style="color: #8f5902;">false</span>)</span>
 <span id="cb57-20"><span class="fu" style="color: #4758AB;">current_figure</span>()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="195">
+<div class="cell-output cell-output-display" data-execution_count="55">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-55-output-1.png" class="img-fluid"></p>
 </div>
 </div>
@@ -1744,7 +1744,7 @@ Note
 <span id="cb64-21"></span>
 <span id="cb64-22">fig_gr2[<span class="fl" style="color: #AD0000;">1</span>,<span class="fl" style="color: #AD0000;">1</span>] <span class="op" style="color: #5E5E5E;">=</span> ax_gr2</span>
 <span id="cb64-23"><span class="fu" style="color: #4758AB;">current_figure</span>()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="202">
+<div class="cell-output cell-output-display" data-execution_count="62">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-62-output-1.png" class="img-fluid"></p>
 </div>
 </div>
@@ -1835,7 +1835,7 @@ Note
 <span id="cb71-2"><span class="fu" style="color: #4758AB;">ylims!</span>(<span class="fu" style="color: #4758AB;">current_axis</span>(), (<span class="op" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">0.75</span>,<span class="fl" style="color: #AD0000;">0.55</span>))</span>
 <span id="cb71-3"><span class="fu" style="color: #4758AB;">current_axis</span>().title<span class="op" style="color: #5E5E5E;">=</span><span class="st" style="color: #20794D;">"Graphene"</span></span>
 <span id="cb71-4"><span class="fu" style="color: #4758AB;">current_figure</span>()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="209">
+<div class="cell-output cell-output-display" data-execution_count="69">
 <p><img src="https://tpolakovic.github.io/posts/cmpm3/index_files/figure-html/cell-69-output-1.png" class="img-fluid"></p>
 </div>
 </div>
