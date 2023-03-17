@@ -663,7 +663,7 @@ fig_Al = Figure()
 ax_Al = Axis(fig_Al, title="Aluminum")
 ax_Al.xticks = ([p.second for p ∈ Alks.ppoints], 
                 [string(p.first) for p ∈ Alks.ppoints])
-ax_Al.yticks = 0:10
+ax_Al.yticks = -0.2:0.1:0.4
 ax_Al.ylabel = "E [Ha]"
 
 ylims!(ax_Al, (-0.2,0.4))
