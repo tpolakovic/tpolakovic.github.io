@@ -8,8 +8,8 @@ categories:
   - Julia
   - Quantum mechanics
   - Solid state physics
-jupyter: julia4t-1.8
-freeze: true
+jupyter: julia8t-1.8
+freeze: auto
 ---
 Guess who's back? Yeah, it's been a while, but I've been quite busy with...well, *things*. No matter; the show is going on and today we finally dive into "real" stuff in computational quantum mechanics, more specifically, solid state physics. This part will also be showing some more big-boy practices in programming, as today's code will serve as a base for future parts of this series. It might mean that some parts will look a bit too verbose and not flow as nicely with the prose. But trust me, it will pay back in the future, so just follow along, there's also numerical physics in this part. I promise.
 
@@ -69,7 +69,7 @@ That, and the author of this blog is really bad at crystallography, so he needs 
 So the first thing on our way toward calculations on crystals is implementing the lattice. But before that: units! We'll use a form of atomic unit system called the [Hartree unit system](https://en.wikipedia.org/wiki/Hartree_atomic_units), which sets basically every unitful property of the hydrogen atom equal to one: $m_e = e = \hbar = a_0 = 1$ ($a_0$ is the Bohr radius). The characteristic scale of energy in this system is called Hartree (Ha) and corresponds to the total electrostatic energy of a Hydrogen atom which, by the virial theorem, is twice the ionization energy or ~27 eV. Bohr radii are not exactly convenient to work with in diffraction experiments and most people use nanometers or angstroms and electronvolts, so let's handle that:
 
 ```{julia}
-a₀ = 1.889726125Å
+a₀ = 0.529177249Å
 Ha = 27.2eV;
 ```
 
@@ -250,7 +250,7 @@ function plotcrystal!(ax, c::Crystal, vertpos; ncells, showcell, showbonds, cmap
         for (i,sp) ∈ enumerate(sps)
             idxs = findall(x -> x == sp, c.cell.species)
             pos = [tuple((R * (c.cell.positions[i] .+ offset))...) for i ∈ idxs]
-            meshscatter!(ax, pos, markersize=0.2, color=cmap[i], shading=true, label=string(sp))
+            meshscatter!(ax, pos, markersize=0.5, color=cmap[i], shading=true, label=string(sp))
         end
     end
     
@@ -540,7 +540,7 @@ ax_Al_el = Axis(fig_Al_el)
 ax_Al_el.xticks = ([p.second for p ∈ Alks.ppoints], 
                  [string(p.first) for p ∈ Alks.ppoints])
 
-ylims!(ax_Al_el, (0,10))
+ylims!(ax_Al_el, (0,1))
 xlims!(ax_Al_el, (0, Alks.plength[end]))
 hideydecorations!(ax_Al_el)
 
@@ -646,10 +646,10 @@ Let's now get back to aluminum. I could go the route of constructing the matrix 
 V(g, Q, q) = ifelse(norm(g) ≈ 0, 0, 4π * Q/(norm(g)^2 .+ q^2));
 ```
 
-Where I set the $V_0$ term to zero. We can now plug in the effective nuclear charge of aluminum ($Q = 3$) and make an educated guess on what's the screening length $1/q$. I could go and look up the electronic number density to calculate the proper screening length, but we're just looking for a rough estimation (I'm neglecting a lot of things already), so let's say that it get's screened roughly on the order of lattice constant ($\left| q \right| = 3$, so that the numbers fit):
+Where I set the $V_0$ term to zero. We can now plug in the effective nuclear charge of aluminum ($Q = 3$) and make an educated guess on what's the screening length $1/q$. I could go and look up the electronic number density to calculate the proper screening length, but we're just looking for a rough estimation (I'm neglecting a lot of things already), so let's say that it get's screened roughly on the order of lattice constant ($\left| q \right| = 10$, so that the numbers fit):
 
 ```{julia}
-AlV(k) = V(k, 3, 3)
+AlV(k) = V(k, 3, 10)
 
 AlH(k) = nfH(k, 2, AlV, Al);
 ```
@@ -666,7 +666,7 @@ ax_Al.xticks = ([p.second for p ∈ Alks.ppoints],
 ax_Al.yticks = 0:10
 ax_Al.ylabel = "E [Ha]"
 
-ylims!(ax_Al, (0,10))
+ylims!(ax_Al, (-0.2,0.4))
 xlims!(ax_Al, (0, Alks.plength[end]))
 hideydecorations!(ax_Al, ticks=false, ticklabels=false, label=false)
 for n ∈ 1:length(Ales[1])
